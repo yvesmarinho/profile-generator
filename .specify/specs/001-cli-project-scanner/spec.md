@@ -338,12 +338,13 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **FR-016**: System MUST implement Strategy Pattern for exporters (JSON, Markdown) (P1 - architecture requirement)
 - **FR-017**: System MUST use Dependency Injection throughout (no direct instantiation) (P1 - architecture requirement)
 - **FR-018**: System MUST validate all file paths to prevent path traversal attacks (P1 - security)
-- **FR-019**: System MUST enforce maximum count of 100,000 source code files per project (whitelist: .py, .js, .go, .ts, .jsx, .tsx, .md, .yaml, .yml, .json, .toml, .txt, .sh, etc.; excludes binaries, build artifacts, dependencies) and fail with clear error message when exceeded (P1 - performance constraint)
+- **FR-019**: System MUST enforce maximum count of 100,000 source code files per project (whitelist: .py, .js, .go, .ts, .jsx, .tsx, .md, .yaml, .yml, .json, .toml, .txt, .sh, .bash, .css, .html, .xml, .sql, .graphql, .proto; excludes binaries .pyc/.exe/.so, build artifacts dist/build/, dependencies node_modules/vendor/) and fail with clear error message when exceeded (P1 - performance constraint)
 - **FR-020**: System MUST provide clear error messages with actionable suggestions (P1)
 - **FR-021**: System MUST support CLI commands: scan, config, version (P1)
 - **FR-022**: System MUST support CLI flags: --dry-run, --verbose, --debug, --quiet, --help (P1-P2)
 - **FR-023**: System MUST use appropriate exit codes: 0 (success), 1 (error), 2 (config invalid) (P1)
 - **FR-024**: System MUST clean up temporary files on exit or error (P1)
+- **FR-025**: System MUST use confidence-based project type detection with 40-point threshold (pyproject.toml +50, setup.py +30, requirements.txt +20, package.json +50, go.mod +50) per research.md Decision 2 (P1 - architecture requirement)
 
 ### Key Entities
 
@@ -373,7 +374,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 
 ### Measurable Outcomes
 
-- **SC-001**: Tool scans 100 projects in under 5 seconds on standard hardware (meets performance target)
+- **SC-001**: Tool scans 100 projects in under 5 seconds on standard hardware (4-core CPU, 8GB RAM, SSD storage) with total time including I/O overhead; average per-project analysis time under 50ms (meets performance target)
 - **SC-002**: JSON output is 100% compatible with yves-profile-site schema (zero validation errors)
 - **SC-003**: Test coverage achieves ≥80% with zero uncovered critical paths (quality gate)
 - **SC-004**: Type checking passes with mypy --strict and zero errors (quality gate)
@@ -381,7 +382,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **SC-006**: Memory usage stays below 500MB during execution on large project sets (resource constraint)
 - **SC-007**: Tool successfully identifies project type with ≥95% accuracy on standard project structures (functional accuracy)
 - **SC-008**: Zero security vulnerabilities detected by bandit and safety scanners (security gate)
-- **SC-009**: All functional requirements FR-001 through FR-024 implemented and tested (completeness)
+- **SC-009**: All functional requirements FR-001 through FR-025 implemented and tested (completeness)
 - **SC-010**: Portfolio update workflow completes in seconds instead of hours (user value metric)
 - **SC-011**: Markdown output is properly formatted and human-readable (usability)
 - **SC-012**: Error messages provide actionable guidance for users (usability)
@@ -435,10 +436,10 @@ Developer wants continuous monitoring of project directories with automatic re-g
 
 - **Risk**: yves-profile-site schema changes could break JSON compatibility
   - **Mitigation**: Version schema, implement schema validation tests, document schema contract
-  
+
 - **Risk**: Very large projects could exceed memory/time constraints
   - **Mitigation**: Implement file count limits, sampling strategies, streaming processing if needed
-  
+
 - **Risk**: Malformed project files (invalid TOML, JSON, YAML) could crash scanner
   - **Mitigation**: Robust error handling, validation, graceful degradation
 

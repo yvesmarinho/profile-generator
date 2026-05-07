@@ -1,0 +1,14 @@
+[project]
+name = "sample-python-project"
+version = "1.0.0"
+description = "A sample Python project for testing the profile generator"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.31.0",
+    "click>=8.1.0",
+    "pydantic>=2.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

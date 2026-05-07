@@ -1,0 +1,25 @@
+{
+  "name": "sample-nodejs-project",
+  "version": "1.0.0",
+  "description": "A sample Node.js project for testing the profile generator",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "build": "webpack"
+  },
+  "keywords": ["sample", "testing"],
+  "author": "Test Author",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "webpack": "^5.75.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

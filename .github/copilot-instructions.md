@@ -125,5 +125,15 @@ Correto: [alternativa válida]
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+.specify/specs/001-cli-project-scanner/plan.md
+
+Key implementation references:
+- Constitution: .specify/memory/constitution.md (7 core principles, SOLID mandatory)
+- Specification: .specify/specs/001-cli-project-scanner/spec.md (11 user stories, 24 FR, 15 SC)
+- Implementation Plan: .specify/specs/001-cli-project-scanner/plan.md (architecture, patterns)
+- Research Decisions: .specify/specs/001-cli-project-scanner/research.md (Typer, confidence scoring)
+- Data Model: .specify/specs/001-cli-project-scanner/data-model.md (5 entities, Pydantic schemas)
+- Quickstart Guide: .specify/specs/001-cli-project-scanner/quickstart.md (TDD workflow)
+- JSON Schema Contract: .specify/specs/001-cli-project-scanner/contracts/projects-output-v1.schema.json
 <!-- SPECKIT END -->

@@ -1,0 +1,192 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "profile-generator"
+version = "0.1.0"
+description = "CLI tool for automated project scanning, analysis, and portfolio generation"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Yves Marinho", email = "yves.marinho@vya.digital"},
+]
+keywords = ["cli", "portfolio", "project-scanner", "automation", "metadata-extraction"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Software Development :: Documentation",
+]
+
+dependencies = [
+    "typer>=0.12.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "jinja2>=3.1.0",
+    "structlog>=24.0.0",
+    "tomli>=2.0.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "mypy>=1.8.0",
+    "ruff>=0.2.0",
+    "bandit[toml]>=1.7.0",
+    "safety>=3.0.0",
+]
+
+[project.scripts]
+profile-gen = "profile_generator.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/yvesmarinho/profile-generator"
+Repository = "https://github.com/yvesmarinho/profile-generator"
+Issues = "https://github.com/yvesmarinho/profile-generator/issues"
+
+# ===== pytest configuration =====
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--verbose",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src/profile_generator",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# ===== Coverage configuration =====
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "@abstractmethod",
+]
+
+# ===== Ruff configuration =====
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+indent-width = 4
+
+src = ["src", "tests"]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D203",    # one-blank-line-before-class (conflicts with D211)
+    "D213",    # multi-line-summary-second-line (conflicts with D212)
+    "COM812",  # trailing-comma-missing (conflicts with formatter)
+    "ISC001",  # single-line-implicit-string-concatenation (conflicts with formatter)
+    # Project-specific ignores
+    "BLE001",  # blind exception - acceptable for graceful analyzer degradation
+    "PLW2901", # loop variable overwrite - intentional for string processing
+    "PLR0913", # too many arguments - Typer CLI pattern
+    "FBT002",  # boolean defaults - Typer CLI flags
+    "PTH123",  # open vs Path.open - required for file descriptors from tempfile
+    "PLC0415", # top-level import - intentional lazy imports
+    "S701",    # jinja2 autoescape - generating Markdown (not HTML), no XSS risk
+    "ANN401",  # Any in kwargs - required for Pydantic model_dump_json override
+    "C901",    # complexity - scanner complexity acceptable for recursive directory walking
+    "TRY300",  # else block - current structure clearer
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # assert usage is OK in tests
+    "PLR2004", # magic values are OK in tests
+    "ANN001",  # missing type annotations in tests
+    "ANN201",  # missing return types in tests
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# ===== Mypy configuration =====
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+strict_concatenate = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
+# ===== Bandit configuration =====
+[tool.bandit]
+targets = ["src"]
+exclude_dirs = ["tests", ".venv", "venv"]
+skips = []
+
+# ===== Hatch configuration =====
+[tool.hatch.build.targets.wheel]
+packages = ["src/profile_generator"]
+
+[tool.hatch.version]
+path = "src/profile_generator/__init__.py"

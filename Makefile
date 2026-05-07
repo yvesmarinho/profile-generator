@@ -17,31 +17,46 @@ init:
 
 ## Instala dependências
 install-deps:
-	@echo "Instalando dependências..."
+	@echo "📦 Instalando dependências com uv..."
+	uv venv
+	uv pip install -e ".[dev]"
 
-## Inicia servidor de desenvolvimento
+## Inicia servidor de desenvolvimento (instala em modo editable)
 dev:
-	@echo "Iniciando desenvolvimento..."
+	@echo "🔧 Instalando em modo desenvolvimento..."
+	uv pip install -e .
 
 ## Build de produção
 build:
-	@echo "Buildando..."
+	@echo "🏗️  Buildando pacote..."
+	uv pip install build
+	python -m build
 
-## Executa testes
+## Executa testes com coverage
 test:
-	@echo "Executando testes..."
+	@echo "🧪 Executando testes com coverage..."
+	pytest
 
-## Lint do código
+## Lint do código (ruff check + mypy + bandit + safety)
 lint:
-	@echo "Linting..."
+	@echo "🔍 Executando linters..."
+	ruff check src/ tests/
+	mypy src/ --strict
+	bandit -r src/
+	safety check
 
-## Formata código
+## Formata código com ruff
 format:
-	@echo "Formatando..."
+	@echo "✨ Formatando código..."
+	ruff format src/ tests/
+	ruff check --fix src/ tests/
 
 ## Remove arquivos gerados
 clean:
-	@rm -rf dist/ build/ __pycache__/ .pytest_cache/ *.egg-info/ .coverage htmlcov/
+	@echo "🧹 Limpando arquivos gerados..."
+	@rm -rf dist/ build/ __pycache__/ .pytest_cache/ *.egg-info/ .coverage htmlcov/ .mypy_cache/ .ruff_cache/
+	@find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 ## Carrega variáveis MCP do .secrets/.env e orienta a abrir o VS Code
 mcp:
 	@bash scripts/load-mcp.sh

@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/yvesmarinho/profile-generator/contracts/projects-output-v1.schema.json",
+  "title": "Profile Generator Projects Output",
+  "description": "JSON schema for profile-generator output, compatible with yves-profile-site consumer",
+  "type": "object",
+  "required": ["generated_at", "tool_version", "projects"],
+  "properties": {
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the data was generated"
+    },
+    "tool_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of profile-generator tool (e.g., '0.1.0')"
+    },
+    "projects": {
+      "type": "array",
+      "description": "List of scanned projects with metadata",
+      "items": {
+        "$ref": "#/$defs/Project"
+      }
+    }
+  },
+  "$defs": {
+    "Project": {
+      "type": "object",
+      "required": ["name", "path", "type", "technologies", "statistics"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Project name from metadata or directory name"
+        },
+        "description": {
+          "type": ["string", "null"],
+          "maxLength": 2000,
+          "description": "Project description from README.md or null if not found"
+        },
+        "path": {
+          "type": "string",
+          "description": "Absolute path to project directory"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["python", "nodejs", "go", "unknown"],
+          "description": "Detected project type"
+        },
+        "technologies": {
+          "type": "array",
+          "minItems": 1,
+          "description": "List of detected technologies/frameworks/libraries",
+          "items": {
+            "$ref": "#/$defs/Technology"
+          }
+        },
+        "repository": {
+          "oneOf": [
+            { "$ref": "#/$defs/Repository" },
+            { "type": "null" }
+          ],
+          "description": "Git repository metadata, or null if not a Git project"
+        },
+        "statistics": {
+          "$ref": "#/$defs/Statistics",
+          "description": "Code statistics for the project"
+        }
+      }
+    },
+    "Technology": {
+      "type": "object",
+      "required": ["name", "category"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Technology name (e.g., 'FastAPI', 'React')"
+        },
+        "version": {
+          "type": ["string", "null"],
+          "description": "Version string (e.g., '0.104.1', '18.2.0'), or null if unknown"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["language", "framework", "library", "tool", "runtime"],
+          "description": "Technology category"
+        }
+      }
+    },
+    "Repository": {
+      "type": "object",
+      "required": ["branch", "commit_count", "top_contributors", "last_commit_date"],
+      "properties": {
+        "url": {
+          "type": ["string", "null"],
+          "description": "Remote Git URL (e.g., 'git@github.com:user/repo.git'), or null if no remote"
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Active branch name"
+        },
+        "commit_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total commit count (all-time)"
+        },
+        "top_contributors": {
+          "type": "array",
+          "maxItems": 5,
+          "description": "Top 5 contributors by commit count (sorted descending)",
+          "items": {
+            "$ref": "#/$defs/Contributor"
+          }
+        },
+        "last_commit_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last commit"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Git tags (versions), may be empty",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "Contributor": {
+      "type": "object",
+      "required": ["name", "commit_count"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Contributor name from Git commits"
+        },
+        "commit_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of commits by this contributor"
+        }
+      }
+    },
+    "Statistics": {
+      "type": "object",
+      "required": ["total_loc", "loc_by_language", "file_count"],
+      "properties": {
+        "total_loc": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total lines of code across all languages"
+        },
+        "loc_by_language": {
+          "type": "object",
+          "minProperties": 1,
+          "description": "Lines of code breakdown by language",
+          "patternProperties": {
+            "^.+$": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "file_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of source files (excluding binaries, build artifacts)"
+        },
+        "test_coverage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Test coverage percentage (0-100), or null if not available"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "generated_at": "2026-05-07T15:45:00Z",
+      "tool_version": "0.1.0",
+      "projects": [
+        {
+          "name": "example-project",
+          "description": "Example Python web API with FastAPI",
+          "path": "/home/user/projects/example-project",
+          "type": "python",
+          "technologies": [
+            {
+              "name": "Python",
+              "version": "3.12.0",
+              "category": "language"
+            },
+            {
+              "name": "FastAPI",
+              "version": "0.104.1",
+              "category": "framework"
+            },
+            {
+              "name": "Pydantic",
+              "version": "2.5.0",
+              "category": "library"
+            }
+          ],
+          "repository": {
+            "url": "git@github.com:user/example-project.git",
+            "branch": "main",
+            "commit_count": 347,
+            "top_contributors": [
+              { "name": "Alice", "commit_count": 210 },
+              { "name": "Bob", "commit_count": 87 },
+              { "name": "Charlie", "commit_count": 50 }
+            ],
+            "last_commit_date": "2026-05-06T18:30:00Z",
+            "tags": ["v1.0.0", "v1.1.0", "v1.2.0"]
+          },
+          "statistics": {
+            "total_loc": 5420,
+            "loc_by_language": {
+              "Python": 4800,
+              "YAML": 320,
+              "Markdown": 300
+            },
+            "file_count": 87,
+            "test_coverage": 85.5
+          }
+        }
+      ]
+    }
+  ]
+}
