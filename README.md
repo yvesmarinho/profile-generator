@@ -2,7 +2,8 @@
 
 > Escanea todas as pasta de projetos, compila os dados e gere arquivo md.
 
-**Domínio**: programming | **Linguagem**: python
+**Domínio**: programming | **Linguagem**: python  
+**Repositório**: https://github.com/yvesmarinho/profile-generator  
 **Criado em**: 2026-05-07T15:30:45Z
 
 

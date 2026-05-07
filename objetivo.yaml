@@ -71,11 +71,11 @@ scope:
 # 3) Estado atual (brownfield context) e inventário de base existente
 # -----------------------------------------------------------------------------
 current_state:
-  description: "unknown"
+  description: "Projeto inicializado via scaffold.py, configurado com repositório GitHub"
   existing_assets:
     repos:
-      - url: ""
-        notes: ""
+      - url: "git@github.com:yvesmarinho/profile-generator.git"
+        notes: "Repositório principal do projeto profile-generator"
     systems_services:
       - name: ""
         owner: ""
