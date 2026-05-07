@@ -49,6 +49,16 @@ breaking_changes: false
 
 ---
 
+## Clarifications
+
+### Session 2026-05-07
+
+- Q: What is the specific file count limit per project that triggers the "very large project" edge case? → A: 100,000 files per project (strict limit, fail with clear error message)
+- Q: How should list-type configuration values (like scan_paths) be merged when defined in multiple sources (CLI, ENV, config, defaults)? → A: Replace strategy - higher precedence source completely replaces lower (CLI replaces ENV, ENV replaces config, config replaces defaults; no merging/appending)
+- Q: What is the scope of Git history analysis for commit/contributor extraction (all-time vs recent, all contributors vs top N)? → A: All-time total commit count + top 5 contributors by commit count (balances completeness with performance and data payload size)
+
+---
+
 ## Performance Criteria
 
 ### Response Time Requirements
@@ -215,11 +225,11 @@ Developer needs flexible configuration via .env, config.yaml, and CLI arguments 
 
 **Acceptance Scenarios**:
 
-1. **Given** PROFILE_GEN_SCAN_PATHS in .env, **When** no CLI override, **Then** uses .env value
-2. **Given** config.yaml and .env both present, **When** loading config, **Then** .env overrides config.yaml
-3. **Given** CLI argument --input, **When** specified, **Then** overrides both .env and config.yaml
+1. **Given** PROFILE_GEN_SCAN_PATHS in .env, **When** no CLI override, **Then** uses .env value (replaces config.yaml and defaults completely)
+2. **Given** config.yaml with scan_paths and .env with PROFILE_GEN_SCAN_PATHS both present, **When** loading config, **Then** .env value completely replaces config.yaml value (no merging)
+3. **Given** CLI argument --input, **When** specified, **Then** CLI value completely replaces both .env and config.yaml (no merging)
 4. **Given** no configuration provided, **When** running scan, **Then** uses sensible defaults (current directory)
-5. **Given** `profile-gen config show` command, **When** run, **Then** displays effective configuration with sources
+5. **Given** `profile-gen config show` command, **When** run, **Then** displays effective configuration with sources and indicates which source provided each value
 
 ---
 
@@ -233,11 +243,11 @@ Developer wants Git metadata included in portfolio (commits, contributors, activ
 
 **Acceptance Scenarios**:
 
-1. **Given** project with .git directory, **When** analyzing, **Then** extracts commit count, contributor list, last commit date
-2. **Given** repository with multiple branches, **When** analyzing, **Then** reports active branch and total branches
+1. **Given** project with .git directory, **When** analyzing, **Then** extracts all-time total commit count, top 5 contributors by commit count (with names and counts), and last commit date
+2. **Given** repository with multiple branches, **When** analyzing, **Then** reports active branch and total branch count
 3. **Given** repository with tags, **When** analyzing, **Then** includes latest tag/version
-4. **Given** project without Git, **When** analyzing, **Then** skips Git analysis gracefully (no error)
-5. **Given** bare repository or corrupted .git, **When** Git commands fail, **Then** logs warning and continues
+4. **Given** project without Git, **When** analyzing, **Then** skips Git analysis gracefully (no error, null repository field)
+5. **Given** bare repository or corrupted .git, **When** Git commands fail, **Then** logs warning and continues (graceful degradation)
 
 ---
 
@@ -297,7 +307,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **What if project has no README.md?** Use project directory name, log warning about missing description, continue
 - **How to handle projects with mixed languages?** Detect all languages present, create composite technology stack
 - **What if output directory is not writable?** Fail fast with clear error message about permissions
-- **How to handle very large projects (1M+ files)?** Implement file count limit with warning, or use sampling strategy
+- **How to handle very large projects (>100k files)?** Fail with clear error when project exceeds 100,000 file limit (prevents performance degradation and resource exhaustion)
 - **What if Git repository is in detached HEAD state?** Report current commit SHA instead of branch name
 - **How to handle non-UTF-8 file encodings?** Attempt common encodings (UTF-8, Latin-1), log warning if unreadable
 - **What if config.yaml has invalid YAML syntax?** Fail with clear error message pointing to syntax error location
@@ -316,9 +326,9 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **FR-005**: System MUST export structured JSON with Pydantic schema validation (P1)
 - **FR-006**: System MUST validate JSON output compatibility with yves-profile-site consumer (P1)
 - **FR-007**: System MUST support configuration via .env, config.yaml, and CLI arguments (P2)
-- **FR-008**: System MUST implement configuration precedence: CLI args > ENV vars > config.yaml > defaults (P2)
+- **FR-008**: System MUST implement configuration precedence: CLI args > ENV vars > config.yaml > defaults, with replace strategy for list-type values (higher precedence completely replaces lower, no merging) (P2)
 - **FR-009**: System MUST provide dry-run mode for preview without file writes (P2)
-- **FR-010**: System MUST extract Git metadata: commits, contributors, activity, last update (P2)
+- **FR-010**: System MUST extract Git metadata: total commit count (all-time), top 5 contributors by commit count, last commit date, branch name, and tags (P2)
 - **FR-011**: System MUST calculate code statistics: LOC by language, file counts (P2)
 - **FR-012**: System MUST support custom Jinja2 templates for Markdown generation (P2)
 - **FR-013**: System MUST gracefully handle missing or malformed project files (P1)
@@ -327,7 +337,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **FR-016**: System MUST implement Strategy Pattern for exporters (JSON, Markdown) (P1 - architecture requirement)
 - **FR-017**: System MUST use Dependency Injection throughout (no direct instantiation) (P1 - architecture requirement)
 - **FR-018**: System MUST validate all file paths to prevent path traversal attacks (P1 - security)
-- **FR-019**: System MUST implement rate limiting or file count limits for very large projects (P2)
+- **FR-019**: System MUST enforce maximum file count limit of 100,000 files per project and fail with clear error message when exceeded (P1 - performance constraint)
 - **FR-020**: System MUST provide clear error messages with actionable suggestions (P1)
 - **FR-021**: System MUST support CLI commands: scan, config, version (P1)
 - **FR-022**: System MUST support CLI flags: --dry-run, --verbose, --debug, --quiet, --help (P1-P2)
@@ -345,7 +355,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
   - Relationships: belongs to Project
 
 - **Repository**: Represents Git repository metadata
-  - Attributes: url, branch, commit_count, contributors, last_commit_date, tags
+  - Attributes: url, branch, commit_count (all-time total), top_contributors (list of top 5 by commit count with name and count), last_commit_date, tags
   - Relationships: belongs to Project
 
 - **Statistics**: Represents code statistics for project
