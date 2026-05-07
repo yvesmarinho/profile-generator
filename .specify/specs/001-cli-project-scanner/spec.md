@@ -56,6 +56,7 @@ breaking_changes: false
 - Q: What is the specific file count limit per project that triggers the "very large project" edge case? → A: 100,000 files per project (strict limit, fail with clear error message)
 - Q: How should list-type configuration values (like scan_paths) be merged when defined in multiple sources (CLI, ENV, config, defaults)? → A: Replace strategy - higher precedence source completely replaces lower (CLI replaces ENV, ENV replaces config, config replaces defaults; no merging/appending)
 - Q: What is the scope of Git history analysis for commit/contributor extraction (all-time vs recent, all contributors vs top N)? → A: All-time total commit count + top 5 contributors by commit count (balances completeness with performance and data payload size)
+- Q: Does the 100,000 file limit apply to all files or only readable/source files (excluding binaries, build artifacts, dependencies)? → A: Count only source code files (whitelist approach: .py, .js, .go, .ts, .jsx, .tsx, .md, .yaml, .yml, .json, .toml, .txt, .sh, .bash, etc.) - excludes binaries (.pyc, .exe, .so), build artifacts (dist/, build/), and dependencies (node_modules/, vendor/)
 
 ---
 
@@ -307,7 +308,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **What if project has no README.md?** Use project directory name, log warning about missing description, continue
 - **How to handle projects with mixed languages?** Detect all languages present, create composite technology stack
 - **What if output directory is not writable?** Fail fast with clear error message about permissions
-- **How to handle very large projects (>100k files)?** Fail with clear error when project exceeds 100,000 file limit (prevents performance degradation and resource exhaustion)
+- **How to handle very large projects (>100k source files)?** Fail with clear error when project exceeds 100,000 source code file limit (counted via whitelist: .py, .js, .go, .ts, .md, etc.; excludes binaries and build artifacts) to prevent performance degradation and resource exhaustion
 - **What if Git repository is in detached HEAD state?** Report current commit SHA instead of branch name
 - **How to handle non-UTF-8 file encodings?** Attempt common encodings (UTF-8, Latin-1), log warning if unreadable
 - **What if config.yaml has invalid YAML syntax?** Fail with clear error message pointing to syntax error location
@@ -337,7 +338,7 @@ Developer wants continuous monitoring of project directories with automatic re-g
 - **FR-016**: System MUST implement Strategy Pattern for exporters (JSON, Markdown) (P1 - architecture requirement)
 - **FR-017**: System MUST use Dependency Injection throughout (no direct instantiation) (P1 - architecture requirement)
 - **FR-018**: System MUST validate all file paths to prevent path traversal attacks (P1 - security)
-- **FR-019**: System MUST enforce maximum file count limit of 100,000 files per project and fail with clear error message when exceeded (P1 - performance constraint)
+- **FR-019**: System MUST enforce maximum count of 100,000 source code files per project (whitelist: .py, .js, .go, .ts, .jsx, .tsx, .md, .yaml, .yml, .json, .toml, .txt, .sh, etc.; excludes binaries, build artifacts, dependencies) and fail with clear error message when exceeded (P1 - performance constraint)
 - **FR-020**: System MUST provide clear error messages with actionable suggestions (P1)
 - **FR-021**: System MUST support CLI commands: scan, config, version (P1)
 - **FR-022**: System MUST support CLI flags: --dry-run, --verbose, --debug, --quiet, --help (P1-P2)
