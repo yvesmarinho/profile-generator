@@ -487,6 +487,127 @@
 
 ---
 
+### Gerar Especificação do Projeto (spec.md)
+
+**15:33 — ✅ Completo**
+
+**Objetivo**: Gerar especificação completa do projeto profile-generator via workflow SpecKit (speckit.specify) baseada em objetivo.yaml
+
+**Contexto**: Specification (spec.md) é documento fundamental que define WHAT o sistema deve fazer (não HOW). Escrito para stakeholders não-técnicos, foca em valor de negócio, user stories priorizadas, requisitos funcionais mensuráveis e critérios de sucesso objetivos.
+
+**Passos executados**:
+1. Criação de estrutura SpecKit:
+   - `.specify/specs/001-cli-project-scanner/` (feature directory)
+   - Short name gerado: "cli-project-scanner"
+   - Feature ID: 001
+   - Feature branch: `001-cli-project-scanner`
+2. Análise de objetivo.yaml para extração de contexto:
+   - Problem statement: atualização manual de portfólio é tediosa e propensa a erros
+   - Value proposition: CLI que reduz tempo de horas para segundos
+   - Success metrics: < 5s para 100 projetos, ≥80% coverage, JSON compatível
+   - Personas: Developer/Portfolio Owner
+   - In-scope: 11 user stories (P1: 6, P2: 4, P3: 1)
+   - Out-of-scope: GUI, APIs, watch mode (P3), cache (P3), integração hospedagem
+3. Geração de 11 User Stories priorizadas:
+   - **P1 (MVP - 6 stories)**: Basic scanning, JSON export, Markdown generation, Python/Node.js/Go analyzers
+   - **P2 (Enhanced - 4 stories)**: Configuration management, Git analysis, code statistics, dry-run mode
+   - **P3 (Future - 1 story)**: Watch mode com monitoramento contínuo
+4. Definição de requisitos funcionais:
+   - 24 functional requirements (FR-001 a FR-024)
+   - Todos com acceptance criteria claros
+   - Priorização P1/P2/P3 alinhada com user stories
+5. Estabelecimento de Success Criteria:
+   - 15 measurable outcomes (SC-001 a SC-015)
+   - Technology-agnostic (foco em resultados, não implementação)
+   - Métricas objetivas: performance (< 5s), quality (≥80%), compatibility (100%), security (zero vulnerabilities)
+6. Documentação de edge cases:
+   - 10 edge cases identificados (deleted directory, circular symlinks, missing README, mixed languages, etc.)
+   - Estratégias de handling para cada caso
+7. Mapeamento de entidades-chave:
+   - Project (core entity)
+   - Technology (belongs to Project)
+   - Repository (Git metadata)
+   - Statistics (code stats)
+   - Configuration (tool settings)
+8. Performance Criteria detalhados:
+   - Response time: < 5s total, < 50ms per project
+   - Throughput: 10-20 projects/second
+   - Resource constraints: < 500MB RAM, < 80% CPU
+   - Accessibility: clear errors, exit codes, help messages
+9. Criação de Quality Checklist:
+   - requirements.md em checklists/
+   - 16/16 items validados ✅
+   - Content quality: 4/4 ✅
+   - Requirement completeness: 8/8 ✅
+   - Feature readiness: 4/4 ✅
+10. Validação final:
+    - Zero [NEEDS CLARIFICATION] markers
+    - All requirements testable and unambiguous
+    - Success criteria measurable and technology-agnostic
+    - Scope clearly bounded
+    - Dependencies and risks documented
+
+**Resultado**: ✅ Especificação completa com 11 user stories priorizadas, 24 requisitos funcionais, 15 critérios de sucesso mensuráveis, 10 edge cases, e validação 16/16 items passed.
+
+**Estrutura da Especificação**:
+- **Feature ID**: 001-cli-project-scanner
+- **Template version**: 2.2.0
+- **Status**: Draft → ready for planning
+- **Seções**:
+  1. Business Context (problem, value, metrics, personas)
+  2. Performance Criteria (response time, throughput, resources, accessibility)
+  3. User Scenarios & Testing (11 stories P1-P3 com Given/When/Then)
+  4. Requirements (24 FR + 5 entities)
+  5. Success Criteria (15 measurable outcomes)
+  6. Assumptions (8 assumptions)
+  7. Out of Scope (10 items)
+  8. Dependencies & Risks (5 dependencies, 5 risks com mitigations)
+
+**User Stories (11 total)**:
+- **P1 (MVP - 6)**: Basic scanning, JSON export, Markdown generation, Python analyzer, Node.js analyzer, Go analyzer
+- **P2 (Enhanced - 4)**: Configuration management, Git analysis, code statistics, dry-run mode
+- **P3 (Future - 1)**: Watch mode
+
+**Functional Requirements (24)**:
+- FR-001 a FR-014: Core functionality (scan, detect, extract, export, validate, config, log)
+- FR-015 a FR-017: Architecture patterns (Factory, Strategy, DI - from constitution)
+- FR-018: Security (path traversal prevention)
+- FR-019: Performance (rate limiting)
+- FR-020 a FR-024: Usability (errors, commands, flags, exit codes, cleanup)
+
+**Success Criteria (15)**:
+- SC-001: Performance (< 5s for 100 projects)
+- SC-002: Compatibility (100% JSON schema match)
+- SC-003: Coverage (≥80%)
+- SC-004: Type safety (mypy --strict zero errors)
+- SC-005: Quality gates (8/8 pass)
+- SC-006 a SC-015: Resource, accuracy, security, completeness, user value metrics
+
+**Benefícios**:
+- ✅ Especificação completa e validada (16/16 checklist)
+- ✅ User stories independentes e testáveis
+- ✅ Requisitos claros sem ambiguidades
+- ✅ Success criteria objetivos e mensuráveis
+- ✅ Edge cases documentados com estratégias
+- ✅ Escopo bem definido (in-scope vs out-of-scope)
+- ✅ Pronto para fase de planejamento
+
+**Próximos passos**:
+1. Criar ADRs (001-004) antes de planejamento
+2. Gerar plan.md via `/speckit.plan`
+3. Gerar tasks.md via `/speckit.tasks`
+4. Implementar P1 MVP seguindo TDD
+
+**Referências**:
+- Arquivo gerado: `.specify/specs/001-cli-project-scanner/spec.md`
+- Checklist: `.specify/specs/001-cli-project-scanner/checklists/requirements.md`
+- Input: `objetivo.yaml`, `.specify/memory/constitution.md`
+- Template: `.specify/templates/spec-template.md`
+
+**Status**: ✅ Completo
+
+---
+
 <!-- Add new activities below this line with separator --- -->
 
 <!--
