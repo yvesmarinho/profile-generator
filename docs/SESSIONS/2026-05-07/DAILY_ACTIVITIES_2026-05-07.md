@@ -189,6 +189,83 @@
 
 ---
 
+### Adicionar SOLID, Factory Pattern e Modularização
+
+**14:35 — ✅ Completo**
+
+**Objetivo**: Incorporar princípios SOLID, design patterns (especialmente Factory) e diretrizes de modularização rigorosa ao objetivo-init.yaml
+
+**Contexto**: Garantir que o código seja desenvolvido seguindo boas práticas de design orientado a objetos, com módulos pequenos e coesos, usando padrões de design apropriados.
+
+**Passos executados**:
+1. Adicionar seção "design_principles" completa ao objetivo-init.yaml:
+   - SOLID principles detalhados (SRP, OCP, LSP, ISP, DIP)
+   - Design Patterns (Factory, Strategy, Builder, Observer, Adapter)
+   - Modularity guidelines (max 200-300 LOC por arquivo)
+   - Architecture style (Hexagonal, Clean, Functional Core/Imperative Shell)
+2. Atualizar regras com princípios SOLID e modularização:
+   - Modularização rigorosa (max 200-300 LOC)
+   - SOLID principles obrigatórios
+   - Factory Pattern para analyzers
+   - Dependency Injection
+   - No circular imports
+   - Public API explícita via __init__.py
+3. Detalhar estrutura de módulos com exemplos concretos:
+   - `analyzers/base.py` - ABC (≤150 LOC)
+   - `analyzers/factory.py` - Factory (≤100 LOC)
+   - `analyzers/{python,nodejs,go}.py` - Implementações (≤200 LOC cada)
+   - `exporters/base.py` - ABC para Strategy Pattern
+   - `exporters/{json,markdown}.py` - Estratégias concretas
+4. Atualizar pending_tasks com tarefas específicas:
+   - Implementar ABC e Factory Pattern
+   - Garantir Dependency Injection
+   - Criar ADR-003 sobre SOLID e design patterns
+   - Configurar ruff para detectar arquivos muito longos
+5. Atualizar docs/TODO.md com tasks detalhadas:
+   - P0: estrutura modular com Factory e Strategy
+   - P1: documentar patterns, criar ADRs (001-004), quality gates
+
+**Resultado**: ✅ Especificação robusta com princípios de design profissionais.
+
+**Decisões técnicas**:
+- **SOLID**: aplicado em toda a codebase como padrão obrigatório
+- **Factory Pattern**: criação de analyzers baseada em tipo detectado
+- **Strategy Pattern**: diferentes estratégias de export (JSON, MD, futuro HTML)
+- **Builder Pattern**: construção progressiva de metadados
+- **Adapter Pattern**: adaptar estruturas diferentes para modelo comum
+- **Max LOC**: 200-300 por arquivo, quebrar em módulos menores se necessário
+- **Architecture**: Hexagonal/Clean Architecture com core isolado
+- **Dependency Injection**: passar dependências via construtor, não instanciar internamente
+
+**Princípios de modularização adicionados**:
+- Arquivo máximo: 200-300 LOC
+- Módulos coesos com responsabilidade única
+- Baixo acoplamento, dependências explícitas
+- Hierarquia lógica de pacotes
+- Public API clara via __init__.py
+- Separation of Concerns rigorosa
+
+**Quality gates adicionados**:
+- Ruff configurado para detectar arquivos longos
+- Code review checklist baseado em SOLID
+- Complexidade ciclomática monitorada
+- ADRs obrigatórias para decisões arquiteturais
+
+**Arquivos modificados**:
+- `objetivo-init.yaml` — seção design_principles (+40 linhas), rules atualizadas, folder_structure detalhada, pending_tasks (+7 items)
+- `docs/TODO.md` — P0 e P1 atualizadas com tasks de SOLID e patterns
+
+**Próximos passos**:
+1. Implementar base.py abstrato para analyzers (ABC)
+2. Criar factory.py com Factory Pattern
+3. Implementar analyzers específicos (≤200 LOC cada)
+4. Criar ADR-003: Aplicação de SOLID e design patterns
+5. Criar ADR-004: Limites de tamanho e modularização
+
+**Status**: ✅ Completo
+
+---
+
 <!-- Add new activities below this line with separator --- -->
 
 <!--

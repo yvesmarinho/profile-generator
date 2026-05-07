@@ -2,17 +2,17 @@ prompt:
   role: user
   content:
     description: |
-      Ferramenta CLI para escanear automaticamente múltiplas pastas de projetos, 
+      Ferramenta CLI para escanear automaticamente múltiplas pastas de projetos,
       analisar arquivos relevantes (README, código-fonte, configurações, testes, documentação),
       compilar metadados e gerar outputs estruturados para uso em site pessoal/portfólio.
-      
+
       O scanner deve:
       - Ler lista de diretórios de arquivo .env ou config
       - Detectar tipo de projeto (Python, Node.js, Go, etc.)
       - Extrair metadados (nome, descrição, tecnologias, stats)
       - Gerar markdown formatado para publicação
       - Exportar JSON estruturado para consumo por outras aplicações
-      
+
     specification:
       - project_name: "profile-generator"
       - project_type: "cli_tool"
@@ -20,7 +20,7 @@ prompt:
       - python_version: ">=3.12"
       - type_checking: "strict mode com mypy --strict"
       - response: "Código Python moderno com type hints completos (PEP 484, 585, 604) e estrutura de projeto organizada"
-      
+
       # Frameworks e Ferramentas
       - cli_framework: "Click 8.x ou Typer 0.12+ (framework CLI declarativo com type hints)"
       - config_management: "Pydantic 2.x para validação de configuração e settings"
@@ -33,20 +33,20 @@ prompt:
       - linting: "ruff check (all-in-one linter+formatter)"
       - formatting: "ruff format (compatível com black)"
       - type_checking: "mypy --strict"
-      
+
       # Documentação
       - docstyle: "Google Style Docstrings com type hints completos"
       - docs_generation: "Sphinx + autodoc + Napoleon (Google style)"
       - architecture_docs: "ADRs (Architecture Decision Records) em docs/decisions/"
       - changelog: "Keep a Changelog format com conventional commits"
-      
+
       # Workflows e Processos
       - workflow-objetivo: "Spec-Driven Development com objetivo.yaml v2.0 + SpecKit"
       - workflow-specify: "Geração automática de spec.md, plan.md e tasks.md via SpecKit agents"
       - development_method: "TDD (Test-Driven Development) para funções core"
       - commit_style: "Conventional Commits (feat, fix, docs, chore, test, refactor)"
       - versioning: "Semantic Versioning 2.0.0"
-      
+
       # Qualidade e Conformidade
       - quality_gates:
           - "Type checking: mypy --strict sem erros"
@@ -54,7 +54,7 @@ prompt:
           - "Tests: pytest com ≥80% coverage"
           - "Security: bandit + safety para vulnerabilidades"
           - "Dependencies: uv.lock commitado e auditado"
-      
+
       - code_standards:
           - "PEP 8 (via ruff format)"
           - "PEP 484 - Type Hints"
@@ -62,14 +62,43 @@ prompt:
           - "PEP 604 - Union syntax (str | None ao invés de Optional[str])"
           - "PEP 621 - pyproject.toml metadata"
       
+      # Princípios de Design e Arquitetura
+      - design_principles:
+          solid:
+            - "S - Single Responsibility: cada classe/módulo tem uma única responsabilidade bem definida"
+            - "O - Open/Closed: aberto para extensão, fechado para modificação"
+            - "L - Liskov Substitution: subclasses devem ser substituíveis por suas classes base"
+            - "I - Interface Segregation: interfaces pequenas e específicas, não monolíticas"
+            - "D - Dependency Inversion: depender de abstrações, não de implementações concretas"
+          
+          design_patterns:
+            - "Factory Pattern: criar analyzers de projeto via factory baseado em tipo detectado"
+            - "Strategy Pattern: diferentes estratégias de export (JSON, Markdown, HTML futuro)"
+            - "Builder Pattern: construção progressiva de metadados de projeto"
+            - "Observer Pattern: notificações de progresso durante scan (opcional)"
+            - "Adapter Pattern: adaptar diferentes estruturas de projeto para modelo comum"
+          
+          modularity:
+            - "Arquivo máximo: ~200-300 LOC (quebrar em módulos menores se exceder)"
+            - "Módulos coesos: cada arquivo tem responsabilidade única e clara"
+            - "Baixo acoplamento: dependências explícitas via injeção, não imports circulares"
+            - "Hierarquia de pacotes: organização lógica espelhando domínio do problema"
+            - "Public API clara: __init__.py exporta apenas interface pública, internals privados"
+            - "Separation of Concerns: CLI, lógica de negócio, I/O e apresentação separados"
+          
+          architecture_style:
+            - "Hexagonal/Ports & Adapters: core de domínio isolado de frameworks e I/O"
+            - "Clean Architecture: dependências apontam para dentro (domain ← use_cases ← adapters)"
+            - "Functional Core, Imperative Shell: lógica pura testável + I/O nas bordas"
+
       - out-scope: "GUI, Web UI, APIs HTTP/REST (fora do escopo - CLI apenas)"
-      
+
       - integration_target:
           - project: "yves-profile-site"
           - location: "../yves-profile-site"
           - purpose: "Consumidor dos dados gerados (JSON + Markdown)"
           - format_expected: "JSON schema compatível com site estático"
-      
+
       - rules:
           - "CLI-First Design: interface de linha de comando como principal ponto de entrada"
           - "Unix Philosophy: fazer uma coisa bem feita, composabilidade via pipes"
@@ -77,6 +106,14 @@ prompt:
           - "Configuração explícita: suportar .env, config.yaml, CLI args (precedência: CLI > ENV > Config > Defaults)"
           - "Análise do yves-profile-site: estudar estrutura para garantir compatibilidade de formato JSON/MD"
           - "Organização de arquivos: raiz minimalista, tudo em pastas específicas (src/, tests/, docs/, scripts/)"
+          - "Modularização rigorosa: arquivos com máximo 200-300 LOC, quebrar em módulos menores quando necessário"
+          - "SOLID principles: aplicar SRP, OCP, LSP, ISP, DIP em todo código"
+          - "Factory Pattern obrigatório: criar analyzers de projeto via factory baseado em tipo detectado"
+          - "Separation of Concerns: CLI ≠ business logic ≠ I/O ≠ presentation (camadas bem definidas)"
+          - "Single Responsibility: cada classe/função faz apenas uma coisa, nome descritivo do que faz"
+          - "Dependency Injection: passar dependências via construtor/args, não instanciar internamente"
+          - "No circular imports: estrutura de módulos hierárquica, dependências unidirecionais"
+          - "Public API explícita: __init__.py exporta apenas interface pública, prefixar internals com underscore"
           - "Output determinístico: mesmos inputs devem gerar mesmos outputs (testável, reproduzível)"
           - "Idempotência: executar múltiplas vezes não deve causar duplicação ou corrupção"
           - "Error handling: erros informativos com exit codes apropriados (0=sucesso, 1=erro geral, 2=config, etc.)"
@@ -106,17 +143,25 @@ prompt:
       - "src/profile_generator/ - Package principal"
       - "src/profile_generator/cli/ - Comandos CLI (Click/Typer)"
       - "src/profile_generator/scanner/ - Lógica de scan de diretórios"
-      - "src/profile_generator/analyzers/ - Análise por tipo de projeto"
-      - "src/profile_generator/models/ - Pydantic models para dados"
-      - "src/profile_generator/exporters/ - Geração de Markdown e JSON"
-      - "src/profile_generator/config/ - Gerenciamento de configuração"
+      - "src/profile_generator/analyzers/ - Análise por tipo de projeto (Factory Pattern)"
+      - "src/profile_generator/analyzers/base.py - Abstract base analyzer (max 150 LOC)"
+      - "src/profile_generator/analyzers/factory.py - Factory para criar analyzers (max 100 LOC)"
+      - "src/profile_generator/analyzers/python.py - Analyzer para projetos Python (max 200 LOC)"
+      - "src/profile_generator/analyzers/nodejs.py - Analyzer para Node.js (max 200 LOC)"
+      - "src/profile_generator/analyzers/go.py - Analyzer para Go (max 200 LOC)"
+      - "src/profile_generator/models/ - Pydantic models para dados (um model por arquivo)"
+      - "src/profile_generator/exporters/ - Geração de Markdown e JSON (Strategy Pattern)"
+      - "src/profile_generator/exporters/base.py - Abstract base exporter"
+      - "src/profile_generator/exporters/json.py - JSON exporter"
+      - "src/profile_generator/exporters/markdown.py - Markdown exporter"
+      - "src/profile_generator/config/ - Gerenciamento de configuração (Pydantic Settings)"
       - "tests/ - Testes pytest (espelha estrutura de src/)"
       - "tests/unit/ - Testes unitários isolados"
       - "tests/integration/ - Testes de integração E2E"
       - "tests/fixtures/ - Dados de teste e mocks"
       - "tmp/ - Arquivos temporários (git-ignored, auto-cleanup)"
       - "output/ - Diretório padrão para outputs gerados (git-ignored ou tracked conforme config)"
-      
+
     expected_outcome:
       - "Executável CLI instalável: `profile-generator scan --input .env --output ./output`"
       - "Markdown formatado: `output/profile-summary.md` pronto para publicação"
@@ -126,7 +171,7 @@ prompt:
       - "Documentação: README com exemplos, Sphinx docs gerado, ADRs documentando decisões"
       - "Testes: ≥80% coverage, CI verde, type checking sem erros"
       - "Distribuição: pacote Python instalável via `uv tool install .`"
-      
+
     infrastructure:
       - "Execução: CLI local (Linux, macOS, Windows WSL)"
       - "Runtime: Python 3.12+ via uv"
@@ -135,7 +180,7 @@ prompt:
       - "CI/CD: GitHub Actions (testes, lint, type check, security scan)"
       - "Distribuição: PyPI ou repositório Git (uv tool install)"
       - "Monitoramento: logs estruturados para análise offline"
-      
+
     profile:
       - role: "copilot-assisted-developer"
         skill_level: "intermediate-to-advanced"
@@ -145,73 +190,80 @@ prompt:
           - "SpecKit agents (clarify, specify, plan, tasks, implement)"
           - "MCP servers (memory, sequential-thinking, filesystem, github)"
           - "Domain profiles (devops-programming.prompt.md)"
-      
+
     features_to_implement:
       # P0 - Crítico (MVP)
       - priority: "P0"
         feature: "CLI básico com Click/Typer"
         description: "Comando `scan` com args --input, --output, --format"
-        
+
       - priority: "P0"
         feature: "Scanner de diretórios"
         description: "Percorrer lista de pastas e detectar projetos válidos"
-        
+
       - priority: "P0"
         feature: "Detecção de tipo de projeto"
         description: "Identificar Python, Node.js, Go, etc. via arquivos característicos"
-        
+
       - priority: "P0"
         feature: "Extração de metadados básicos"
         description: "Nome, descrição (README), linguagem principal, tecnologias"
-        
+
       - priority: "P0"
         feature: "Exportação JSON"
         description: "Schema Pydantic validado, formato compatível com yves-profile-site"
-        
+
       - priority: "P0"
         feature: "Exportação Markdown"
         description: "Template Jinja2 com formatação para publicação"
-      
+
       # P1 - Alta prioridade
       - priority: "P1"
         feature: "Configuração via .env e config.yaml"
         description: "Suporte a múltiplas fontes de config com precedência"
-        
+
       - priority: "P1"
         feature: "Análise Git avançada"
         description: "Commits, contribuidores, atividade, último update"
-        
+
       - priority: "P1"
         feature: "Estatísticas de código"
         description: "LOC por linguagem, complexidade, cobertura de testes"
-        
+
       - priority: "P1"
         feature: "Templates customizáveis"
         description: "Usuário pode fornecer templates Jinja2 próprios"
-      
+
       # P2 - Desejável
       - priority: "P2"
         feature: "Watch mode"
         description: "Monitorar diretórios e regenerar automaticamente ao detectar mudanças"
-        
+
       - priority: "P2"
         feature: "Filtros e exclusões"
         description: "Regex para incluir/excluir projetos, tipos, caminhos"
-        
+
       - priority: "P2"
         feature: "Cache inteligente"
         description: "Evitar re-scan de projetos não modificados"
-      
+
     pending_tasks:
       - "Definir JSON schema para output (compatível com yves-profile-site)"
-      - "Criar estrutura de módulos em src/profile_generator/"
-      - "Implementar CLI básico com Click/Typer"
-      - "Implementar scanner de diretórios"
-      - "Implementar detecção de tipo de projeto"
-      - "Implementar extração de metadados"
-      - "Implementar exportadores (JSON + Markdown)"
-      - "Adicionar testes unitários (≥80% coverage)"
+      - "Criar estrutura de módulos em src/profile_generator/ seguindo SOLID e modularização"
+      - "Implementar base.py abstrato para analyzers (Abstract Base Class)"
+      - "Implementar factory.py com Factory Pattern para criação de analyzers"
+      - "Implementar analyzers específicos (python.py, nodejs.py, go.py) cada ≤200 LOC"
+      - "Implementar CLI básico com Click/Typer seguindo SRP"
+      - "Implementar scanner de diretórios com responsabilidade única"
+      - "Implementar detecção de tipo de projeto (delegar para factory)"
+      - "Implementar extração de metadados usando Strategy Pattern"
+      - "Implementar exportadores (JSON + Markdown) com base abstrata"
+      - "Garantir Dependency Injection em toda a aplicação"
+      - "Adicionar testes unitários (≥80% coverage) para cada módulo"
+      - "Documentar padrões de design usados (Factory, Strategy, etc.)"
       - "Documentar API pública (Sphinx)"
-      - "Criar ADR-001: Escolha de framework CLI"
+      - "Criar ADR-001: Escolha de framework CLI (Click vs Typer)"
       - "Criar ADR-002: Estratégia de detecção de projetos"
-      - "Configurar CI/CD (GitHub Actions)"
+      - "Criar ADR-003: Aplicação de SOLID e design patterns"
+      - "Configurar CI/CD (GitHub Actions) com quality gates"
+      - "Configurar ruff para detectar funções/classes muito longas"
