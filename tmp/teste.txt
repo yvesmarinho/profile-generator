@@ -1,0 +1,5 @@
+- essa é a fase de pre spec, analise o documento no contexto.
+- baseado no conteúdo atualizado por mim,
+faça correções e atualizações nas informações que estão faltando,
+inclusive mencionado a utilização das boas práticas, metodos e frameworks.
+- esse trabalho é totalmente CLI.

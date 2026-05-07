@@ -61,7 +61,7 @@ prompt:
           - "PEP 585 - Generics modernos (list[str] ao invés de List[str])"
           - "PEP 604 - Union syntax (str | None ao invés de Optional[str])"
           - "PEP 621 - pyproject.toml metadata"
-      
+
       # Princípios de Design e Arquitetura
       - design_principles:
           solid:
@@ -70,14 +70,14 @@ prompt:
             - "L - Liskov Substitution: subclasses devem ser substituíveis por suas classes base"
             - "I - Interface Segregation: interfaces pequenas e específicas, não monolíticas"
             - "D - Dependency Inversion: depender de abstrações, não de implementações concretas"
-          
+
           design_patterns:
             - "Factory Pattern: criar analyzers de projeto via factory baseado em tipo detectado"
             - "Strategy Pattern: diferentes estratégias de export (JSON, Markdown, HTML futuro)"
             - "Builder Pattern: construção progressiva de metadados de projeto"
             - "Observer Pattern: notificações de progresso durante scan (opcional)"
             - "Adapter Pattern: adaptar diferentes estruturas de projeto para modelo comum"
-          
+
           modularity:
             - "Arquivo máximo: ~200-300 LOC (quebrar em módulos menores se exceder)"
             - "Módulos coesos: cada arquivo tem responsabilidade única e clara"
@@ -85,7 +85,7 @@ prompt:
             - "Hierarquia de pacotes: organização lógica espelhando domínio do problema"
             - "Public API clara: __init__.py exporta apenas interface pública, internals privados"
             - "Separation of Concerns: CLI, lógica de negócio, I/O e apresentação separados"
-          
+
           architecture_style:
             - "Hexagonal/Ports & Adapters: core de domínio isolado de frameworks e I/O"
             - "Clean Architecture: dependências apontam para dentro (domain ← use_cases ← adapters)"

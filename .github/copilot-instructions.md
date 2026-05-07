@@ -122,3 +122,8 @@ Correto: [alternativa válida]
 ```
 
 *Gerado por scaffold.py em 2026-05-07T15:30:45Z — Projeto: profile-generator*
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
