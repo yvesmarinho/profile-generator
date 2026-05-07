@@ -121,6 +121,74 @@
 
 ---
 
+### Especificação Detalhada - objetivo-init.yaml
+
+**14:30 — ✅ Completo**
+
+**Objetivo**: Atualizar objetivo-init.yaml com especificações técnicas completas, frameworks, boas práticas e metodologias para projeto CLI
+
+**Contexto**: Fase de pré-spec. Documento inicial tinha informações genéricas e features de web/API que não são aplicáveis (projeto é CLI apenas). Necessário detalhar stack técnico, frameworks Python modernos, padrões de qualidade e integração com yves-profile-site.
+
+**Passos executados**:
+1. Analisar objetivo-init.yaml atual e identificar gaps
+2. Verificar estrutura do yves-profile-site para entender formato de dados esperado
+3. Atualizar descrição com objetivos claros do scanner CLI
+4. Especificar stack técnico completo:
+   - CLI Framework: Click 8.x ou Typer 0.12+
+   - Config: Pydantic 2.x Settings
+   - Data models: Pydantic BaseModel
+   - Exports: JSON (Pydantic) + Markdown (Jinja2)
+   - Logging: structlog (logs estruturados)
+   - Testing: pytest + pytest-cov (≥80%)
+   - Quality: ruff (lint+format), mypy --strict
+5. Adicionar metodologias e processos:
+   - TDD (Test-Driven Development)
+   - Spec-Driven Development (SpecKit)
+   - Conventional Commits
+   - Semantic Versioning
+6. Definir quality gates e code standards (PEPs 484, 585, 604, 621)
+7. Documentar estrutura de pastas detalhada (src/profile_generator/*)
+8. Listar features por prioridade (P0/P1/P2)
+9. Remover features web/API (fora do escopo - CLI apenas)
+10. Adicionar pending_tasks específicas e acionáveis
+11. Atualizar docs/TODO.md com tarefas categorizadas por prioridade
+
+**Resultado**: ✅ Especificação técnica completa e detalhada com stack moderno Python CLI.
+
+**Decisões técnicas**:
+- **CLI Framework**: Click ou Typer (decidir em ADR-001)
+- **Config**: Pydantic Settings (validação tipada + múltiplas fontes)
+- **Type checking**: mypy --strict (conformidade PEP 484)
+- **Linting**: ruff (substituindo black + flake8 + isort)
+- **Logs**: structlog (JSON structured logging para análise)
+- **Templates**: Jinja2 (customizável pelo usuário)
+- **Versionamento**: SemVer 2.0.0 + Conventional Commits
+- **Package manager**: uv (moderno, rápido, PEP 621 nativo)
+
+**Boas práticas documentadas**:
+- Unix Philosophy: fazer uma coisa bem feita
+- Zero-config: defaults sensatos out-of-the-box
+- Idempotência: executar N vezes = mesmo resultado
+- Error handling: exit codes apropriados (0, 1, 2)
+- Dry-run mode: preview sem modificar
+- CI/CD ready: sem interação manual
+- Output determinístico: testável e reproduzível
+
+**Arquivos modificados**:
+- `objetivo-init.yaml` — especificação completa (+150 linhas)
+- `docs/TODO.md` — tarefas categorizadas por prioridade P0/P1/P2
+
+**Próximos passos**:
+1. Usar SpecKit para gerar spec.md a partir de objetivo-init.yaml
+2. Criar plan.md com arquitetura detalhada
+3. Gerar tasks.md com tarefas acionáveis
+4. Implementar estrutura de módulos em src/
+5. Criar ADR-001 e ADR-002
+
+**Status**: ✅ Completo
+
+---
+
 <!-- Add new activities below this line with separator --- -->
 
 <!--

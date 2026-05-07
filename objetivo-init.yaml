@@ -1,56 +1,217 @@
 prompt:
   role: user
   content:
-    description: "Programa para escanear as pastas informadas no arquivo `env`, um por uma, analisar todos os arquivos e compilar um resumo para ser usado no meu site pessoal, como profile, portfólio ou currículo. Após compilação gerar arquivo markdown com o resumo e um arquivo JSON com os dados estruturados para uso em outras aplicações."
+    description: |
+      Ferramenta CLI para escanear automaticamente múltiplas pastas de projetos, 
+      analisar arquivos relevantes (README, código-fonte, configurações, testes, documentação),
+      compilar metadados e gerar outputs estruturados para uso em site pessoal/portfólio.
+      
+      O scanner deve:
+      - Ler lista de diretórios de arquivo .env ou config
+      - Detectar tipo de projeto (Python, Node.js, Go, etc.)
+      - Extrair metadados (nome, descrição, tecnologias, stats)
+      - Gerar markdown formatado para publicação
+      - Exportar JSON estruturado para consumo por outras aplicações
+      
     specification:
       - project_name: "profile-generator"
-      - response: "código Python 3.11+ com type hints completos e estrutura de projeto organizada"
-      - docstyle: "Google Style Docstrings com type hints completos, Sphinx para geração de docs, ADRs para decisões arquiteturais, OpenAPI/Swagger para documentação de API"
-      - workflow-objetivo: "Workflow baseado em objetivo.yaml v2.0 com SpecKit"
-      - workflow-specify: "Geração automática de spec.md, plan.md e tasks.md"
-      - out-scope: "Itens fora do escopo serão documentados separadamente"
+      - project_type: "cli_tool"
+      - runtime: "Python 3.12+"
+      - python_version: ">=3.12"
+      - type_checking: "strict mode com mypy --strict"
+      - response: "Código Python moderno com type hints completos (PEP 484, 585, 604) e estrutura de projeto organizada"
+      
+      # Frameworks e Ferramentas
+      - cli_framework: "Click 8.x ou Typer 0.12+ (framework CLI declarativo com type hints)"
+      - config_management: "Pydantic 2.x para validação de configuração e settings"
+      - file_scanning: "pathlib.Path (stdlib) + watchdog para monitoramento opcional"
+      - data_models: "Pydantic BaseModel para estruturas de dados validadas"
+      - json_export: "pydantic.json() para serialização tipada"
+      - markdown_generation: "Jinja2 templates ou Python-Markdown com extensions"
+      - logging: "structlog para logs estruturados JSON"
+      - testing: "pytest + pytest-cov (cobertura ≥80%)"
+      - linting: "ruff check (all-in-one linter+formatter)"
+      - formatting: "ruff format (compatível com black)"
+      - type_checking: "mypy --strict"
+      
+      # Documentação
+      - docstyle: "Google Style Docstrings com type hints completos"
+      - docs_generation: "Sphinx + autodoc + Napoleon (Google style)"
+      - architecture_docs: "ADRs (Architecture Decision Records) em docs/decisions/"
+      - changelog: "Keep a Changelog format com conventional commits"
+      
+      # Workflows e Processos
+      - workflow-objetivo: "Spec-Driven Development com objetivo.yaml v2.0 + SpecKit"
+      - workflow-specify: "Geração automática de spec.md, plan.md e tasks.md via SpecKit agents"
+      - development_method: "TDD (Test-Driven Development) para funções core"
+      - commit_style: "Conventional Commits (feat, fix, docs, chore, test, refactor)"
+      - versioning: "Semantic Versioning 2.0.0"
+      
+      # Qualidade e Conformidade
+      - quality_gates:
+          - "Type checking: mypy --strict sem erros"
+          - "Linting: ruff check --select ALL sem warnings"
+          - "Tests: pytest com ≥80% coverage"
+          - "Security: bandit + safety para vulnerabilidades"
+          - "Dependencies: uv.lock commitado e auditado"
+      
+      - code_standards:
+          - "PEP 8 (via ruff format)"
+          - "PEP 484 - Type Hints"
+          - "PEP 585 - Generics modernos (list[str] ao invés de List[str])"
+          - "PEP 604 - Union syntax (str | None ao invés de Optional[str])"
+          - "PEP 621 - pyproject.toml metadata"
+      
+      - out-scope: "GUI, Web UI, APIs HTTP/REST (fora do escopo - CLI apenas)"
+      
+      - integration_target:
+          - project: "yves-profile-site"
+          - location: "../yves-profile-site"
+          - purpose: "Consumidor dos dados gerados (JSON + Markdown)"
+          - format_expected: "JSON schema compatível com site estático"
+      
       - rules:
-          - Regras para o projeto:
-              - "Analisar a pasta 'yves-profile-site' para comprender como serão publicados os dados de profile, portfólio e currículo"
-          - "Todos os arquivos gerados devem ser armazenados nas devidas pastas,
-            na raiz do projeto só os arquivos extremamente necessários"
-          - "Códigos gerados devem seguir padrões de qualidade e estilo, com
-            linting e formatação automática"
-          - "Fluxo de trabalho deve ser guiado por prompts para GitHub Copilot"
-          - "Configuração MCP deve ser gerada automaticamente baseada nas
-            especificações"
-          - "Sistema de versionamento e histórico deve rastrear todas as
-            mudanças"
-          - "Utilizar as melhores práticas de desenvolvimento de software,
-            incluindo testes automatizados, documentação clara e manutenção de
-            código"
-          - "Utilizar as melhores práticas de segurança, incluindo a gestão
-            segura de credenciais e a proteção contra vulnerabilidades comuns"
+          - "CLI-First Design: interface de linha de comando como principal ponto de entrada"
+          - "Unix Philosophy: fazer uma coisa bem feita, composabilidade via pipes"
+          - "Zero-config padrão: funcionar out-of-the-box com defaults sensatos"
+          - "Configuração explícita: suportar .env, config.yaml, CLI args (precedência: CLI > ENV > Config > Defaults)"
+          - "Análise do yves-profile-site: estudar estrutura para garantir compatibilidade de formato JSON/MD"
+          - "Organização de arquivos: raiz minimalista, tudo em pastas específicas (src/, tests/, docs/, scripts/)"
+          - "Output determinístico: mesmos inputs devem gerar mesmos outputs (testável, reproduzível)"
+          - "Idempotência: executar múltiplas vezes não deve causar duplicação ou corrupção"
+          - "Error handling: erros informativos com exit codes apropriados (0=sucesso, 1=erro geral, 2=config, etc.)"
+          - "Logs estruturados: JSON logs via structlog para parsing e análise"
+          - "Dry-run mode: --dry-run para preview sem modificar arquivos"
+          - "Verbose levels: --quiet, --verbose, --debug"
+          - "CI/CD ready: testável em pipelines, sem interação manual"
+          - "Fluxo guiado por prompts Copilot (.github/prompts/)"
+          - "MCP servers configurados (.vscode/mcp.json)"
+          - "Git hooks ativos: pre-commit para validação (secrets, lint, types)"
+          - "Versionamento: todas mudanças trackadas em CHANGELOG.md"
+          - "Testes automatizados: CI roda testes + coverage + security scan"
+          - "Documentação sempre atualizada: docstrings + Sphinx + README"
+          - "Segurança: nenhum secret em código, usar .secrets/ + .env, git-ignored"
+          - "Dependencies pinning: uv.lock commitado, updates via uv lock --upgrade"
     folder_structure:
-      - ".github - Agents, Workflows e ações para CI/CD (gerados
-        automaticamente)"
-      - ".git-hooks - Hooks personalizados para Git (gerados automaticamente)"
-      - ".secrets - Armazenamento seguro de chaves e tokens (não versionado)"
-      - ".specify - Configurações específicas do projeto (geradas
-        automaticamente)"
-      - ".vscode - Configurações VS Code e MCP (geradas automaticamente)"
-      - "docs - Documentação (gerada automaticamente)"
-      - "scripts - Scripts de automação inteligente"
-      - "src - Código-fonte do projeto (estrutura específica por tipo)"
-      - "test - Testes automatizados (framework baseado na linguagem)"
-      - "tmp - Arquivos temporários e de backup (não versionados e removidos
-        automaticamente no final da sessão)"
-      - "objetivo-init.yaml - Especificação detalhada do projeto"
+      - ".github/ - Agents Copilot, workflows CI/CD, issue templates"
+      - ".git-hooks/ - Pre-commit hooks (secrets scan, lint, type check)"
+      - ".secrets/ - Credenciais locais (git-ignored, nunca commitar)"
+      - ".specify/ - Configurações SpecKit e artifacts gerados"
+      - ".vscode/ - Settings VS Code, MCP servers config, extensions"
+      - "docs/ - Documentação Sphinx, ADRs, guias, sessões"
+      - "docs/decisions/ - Architecture Decision Records (ADR)"
+      - "docs/SESSIONS/ - Logs de sessões de desenvolvimento"
+      - "scripts/ - Scripts de automação e utilitários"
+      - "src/ - Código-fonte Python organizado por módulos"
+      - "src/profile_generator/ - Package principal"
+      - "src/profile_generator/cli/ - Comandos CLI (Click/Typer)"
+      - "src/profile_generator/scanner/ - Lógica de scan de diretórios"
+      - "src/profile_generator/analyzers/ - Análise por tipo de projeto"
+      - "src/profile_generator/models/ - Pydantic models para dados"
+      - "src/profile_generator/exporters/ - Geração de Markdown e JSON"
+      - "src/profile_generator/config/ - Gerenciamento de configuração"
+      - "tests/ - Testes pytest (espelha estrutura de src/)"
+      - "tests/unit/ - Testes unitários isolados"
+      - "tests/integration/ - Testes de integração E2E"
+      - "tests/fixtures/ - Dados de teste e mocks"
+      - "tmp/ - Arquivos temporários (git-ignored, auto-cleanup)"
+      - "output/ - Diretório padrão para outputs gerados (git-ignored ou tracked conforme config)"
+      
     expected_outcome:
-      - "Arquivos markdown e JSON gerados com resumos e dados estruturados"
+      - "Executável CLI instalável: `profile-generator scan --input .env --output ./output`"
+      - "Markdown formatado: `output/profile-summary.md` pronto para publicação"
+      - "JSON estruturado: `output/projects-data.json` com schema validado"
+      - "Logs estruturados: JSON logs para análise e debug"
+      - "Métricas coletadas: linhas de código, linguagens, tecnologias, atividade Git"
+      - "Documentação: README com exemplos, Sphinx docs gerado, ADRs documentando decisões"
+      - "Testes: ≥80% coverage, CI verde, type checking sem erros"
+      - "Distribuição: pacote Python instalável via `uv tool install .`"
+      
     infrastructure:
-      - "Será executado em CLI local."
+      - "Execução: CLI local (Linux, macOS, Windows WSL)"
+      - "Runtime: Python 3.12+ via uv"
+      - "Package manager: uv (não usar pip/poetry)"
+      - "Virtual env: automático via uv (.venv/)"
+      - "CI/CD: GitHub Actions (testes, lint, type check, security scan)"
+      - "Distribuição: PyPI ou repositório Git (uv tool install)"
+      - "Monitoramento: logs estruturados para análise offline"
+      
     profile:
       - role: "copilot-assisted-developer"
-        skill_level: "intermediate"
-        description: "Desenvolvedor usando GitHub Copilot para acelerar desenvolvimento"
+        skill_level: "intermediate-to-advanced"
+        description: "Desenvolvedor usando GitHub Copilot + Agents + SpecKit para acelerar desenvolvimento guiado por especificações"
+        tools:
+          - "GitHub Copilot Chat para pair programming"
+          - "SpecKit agents (clarify, specify, plan, tasks, implement)"
+          - "MCP servers (memory, sequential-thinking, filesystem, github)"
+          - "Domain profiles (devops-programming.prompt.md)"
+      
     features_to_implement:
-      - "Processamento automático de deploy com validação de pré-requisitos (P0)"
-      - "Interface web para configuração e monitoramento de deploys (P1)"
-      - "API REST para integração com CI/CD pipelines (P0)"
-    pending_tasks: []
+      # P0 - Crítico (MVP)
+      - priority: "P0"
+        feature: "CLI básico com Click/Typer"
+        description: "Comando `scan` com args --input, --output, --format"
+        
+      - priority: "P0"
+        feature: "Scanner de diretórios"
+        description: "Percorrer lista de pastas e detectar projetos válidos"
+        
+      - priority: "P0"
+        feature: "Detecção de tipo de projeto"
+        description: "Identificar Python, Node.js, Go, etc. via arquivos característicos"
+        
+      - priority: "P0"
+        feature: "Extração de metadados básicos"
+        description: "Nome, descrição (README), linguagem principal, tecnologias"
+        
+      - priority: "P0"
+        feature: "Exportação JSON"
+        description: "Schema Pydantic validado, formato compatível com yves-profile-site"
+        
+      - priority: "P0"
+        feature: "Exportação Markdown"
+        description: "Template Jinja2 com formatação para publicação"
+      
+      # P1 - Alta prioridade
+      - priority: "P1"
+        feature: "Configuração via .env e config.yaml"
+        description: "Suporte a múltiplas fontes de config com precedência"
+        
+      - priority: "P1"
+        feature: "Análise Git avançada"
+        description: "Commits, contribuidores, atividade, último update"
+        
+      - priority: "P1"
+        feature: "Estatísticas de código"
+        description: "LOC por linguagem, complexidade, cobertura de testes"
+        
+      - priority: "P1"
+        feature: "Templates customizáveis"
+        description: "Usuário pode fornecer templates Jinja2 próprios"
+      
+      # P2 - Desejável
+      - priority: "P2"
+        feature: "Watch mode"
+        description: "Monitorar diretórios e regenerar automaticamente ao detectar mudanças"
+        
+      - priority: "P2"
+        feature: "Filtros e exclusões"
+        description: "Regex para incluir/excluir projetos, tipos, caminhos"
+        
+      - priority: "P2"
+        feature: "Cache inteligente"
+        description: "Evitar re-scan de projetos não modificados"
+      
+    pending_tasks:
+      - "Definir JSON schema para output (compatível com yves-profile-site)"
+      - "Criar estrutura de módulos em src/profile_generator/"
+      - "Implementar CLI básico com Click/Typer"
+      - "Implementar scanner de diretórios"
+      - "Implementar detecção de tipo de projeto"
+      - "Implementar extração de metadados"
+      - "Implementar exportadores (JSON + Markdown)"
+      - "Adicionar testes unitários (≥80% coverage)"
+      - "Documentar API pública (Sphinx)"
+      - "Criar ADR-001: Escolha de framework CLI"
+      - "Criar ADR-002: Estratégia de detecção de projetos"
+      - "Configurar CI/CD (GitHub Actions)"
