@@ -266,6 +266,71 @@
 
 ---
 
+### Atualizar objetivo.yaml e mcp-questions.yaml
+
+**14:45 — ✅ Completo**
+
+**Objetivo**: Sincronizar objetivo.yaml e mcp-questions.yaml com as especificações detalhadas do objetivo-init.yaml
+
+**Contexto**: Os arquivos objetivo.yaml e mcp-questions.yaml continham informações genéricas e exemplos (user-management-api). Necessário atualizá-los com as especificações completas do profile-generator CLI tool, incluindo SOLID principles, design patterns e modularização rigorosa.
+
+**Passos executados - objetivo.yaml**:
+1. Atualizar project section (summary, problem_statement, success_statement)
+2. Atualizar stakeholders (owner: yvesmarinho)
+3. Expandir scope completo (in_scope, out_of_scope, assumptions)
+4. Atualizar constraints (timeline: 2026-06-30, mode: greenfield, SOLID+Factory)
+5. Atualizar current_state (yves-profile-site como consumidor)
+6. Preencher prerequisites (Python 3.12+, uv, git)
+7. Expandir dependencies (Click/Typer, Pydantic, Jinja2, structlog, etc.)
+8. Detalhar requirements funcionais (8) e não-funcionais completos
+9. Atualizar interfaces (CLI, exit codes, inputs/outputs)
+10. Atualizar data (sources: arquivos + git repos)
+11. Revisar deliverables (spec.md, plan.md, tasks.md, ADRs 001-004)
+12. Expandir implementation_rules (error handling, strict typing, TDD, patterns)
+13. Atualizar gates com respostas concretas (eliminar todos "unknown")
+
+**Passos executados - mcp-questions.yaml**:
+1. Substituir exemplo "user-management-api" por "profile-generator"
+2. Atualizar meta (created_at: 2026-05-07, example: false)
+3. Atualizar project (type: "cli", description, success_criteria)
+4. Atualizar stack (Python 3.12, uv, click-or-typer, ADR-001)
+5. Atualizar dependencies completas (runtime + development)
+6. Substituir capabilities.api por capabilities.cli (comandos, flags, features P0/P1/P2)
+7. Atualizar data (persistence: false, sources filesystem+git, outputs JSON+MD)
+8. Atualizar security (authentication: none, local CLI)
+9. Atualizar observability (structlog JSON)
+10. Atualizar environment variables (PROFILE_GEN_*)
+11. Atualizar repository_layout detalhado (analyzers/, exporters/, tests/)
+12. Atualizar documentation (Sphinx + Google Style)
+13. Expandir quality com design_principles (SOLID, patterns, architecture, max LOC)
+14. Atualizar delivery (CLI tool, uv install, GitHub Actions)
+15. Atualizar traceability, mcp, automation.scripts
+
+**Resultado**: ✅ objetivo.yaml e mcp-questions.yaml completamente sincronizados com objetivo-init.yaml. Todas as especificações técnicas, SOLID principles, design patterns e modularização rigorosa documentados de forma consistente nos 3 arquivos.
+
+**Validação**:
+- ✅ objetivo.yaml: zero campos "unknown", todas seções preenchidas
+- ✅ mcp-questions.yaml: exemplo API removido, CLI tool completo
+- ✅ Stack consistente entre os 3 arquivos
+- ✅ SOLID principles documentados em todos
+- ✅ Design patterns alinhados (Factory, Strategy, Builder, Observer, Adapter)
+- ✅ Modularização rigorosa (max 200-300 LOC)
+
+**Arquivos modificados**:
+- `objetivo.yaml` — ~200 linhas alteradas (todas seções expandidas)
+- `mcp-questions.yaml` — ~250 linhas alteradas (exemplo substituído)
+
+**Próximos passos**:
+1. Commitar alterações
+2. Usar SpecKit agents para gerar spec.md
+3. Gerar plan.md com arquitetura detalhada
+4. Criar tasks.md acionáveis
+5. Implementar estrutura de módulos
+
+**Status**: ✅ Completo
+
+---
+
 <!-- Add new activities below this line with separator --- -->
 
 <!--

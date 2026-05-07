@@ -13,23 +13,23 @@ meta:
     objective_yaml_path: "objetivo.yaml"
     generator: "copilot"
     generator_version: null
-  created_at: null
-  updated_at: "2026-03-26"
+  created_at: "2026-05-07"
+  updated_at: "2026-05-07"
   locale: "pt-BR"
-  example: true
+  example: false
 
 # -----------------------------------------------------------------------------
 # 1) Project identity (espelha gates e project do objetivo.yaml)
 # -----------------------------------------------------------------------------
 project:
-  name: "user-management-api"
-  type: "api"               # api|cli|lib|webapp|firmware|data-pipeline|service|unknown
+  name: "profile-generator"
+  type: "cli"               # api|cli|lib|webapp|firmware|data-pipeline|service|unknown
   domain: "software"
-  description: "API REST para gerenciamento de usuários com autenticação JWT, perfis de usuário e sistema de permissões"
+  description: "Ferramenta CLI para escanear automaticamente múltiplas pastas de projetos, analisar arquivos relevantes e gerar outputs estruturados (Markdown + JSON) para uso em site pessoal/portfólio."
   versioning:
-    api_version: "v1"
+    cli_version: "0.1.0"
     strategy: "semver"
-  success_criteria: null
+  success_criteria: "CLI instalável que reduz tempo de atualização de portfólio de horas para segundos; ≥80% coverage; mypy --strict sem erros; JSON compatível com yves-profile-site"
 
 # -----------------------------------------------------------------------------
 # 2) Stack selection (agnóstico com perfil concreto)
@@ -38,137 +38,142 @@ stack:
   primary:
     language: "python"
     runtime:
-      python_version: "3.11"
-      virtual_env: "venv"        # venv|virtualenv|conda|poetry|uv|null
+      python_version: "3.12"
+      virtual_env: "uv"        # venv|virtualenv|conda|poetry|uv|null
     framework:
-      name: "fastapi"
-      notes: null
+      name: "click-or-typer"
+      notes: "Decisão pendente em ADR-001: Click 8.x ou Typer 0.12+"
     package_manager:
-      name: "pip"                # pip|poetry|pipenv|uv|null
+      name: "uv"                # pip|poetry|pipenv|uv|null
   profiles:
     # Profiles permitem suportar multi-stack no futuro no mesmo modelo.
-    - id: "python-fastapi"
+    - id: "python-cli"
       enabled: true
       language: "python"
-      framework: "fastapi"
+      framework: "click-or-typer"
 
 dependencies:
   # Boas práticas: separar runtime deps vs dev deps e permitir ranges.
   runtime:
-    - name: "fastapi"
-      spec: ">=0.104.0"
-    - name: "uvicorn"
-      spec: "[standard]>=0.24.0"
-    - name: "sqlalchemy"
-      spec: ">=2.0.0"
-    - name: "alembic"
-      spec: ">=1.12.0"
+    - name: "click"
+      spec: ">=8.0.0"
+      notes: "OU typer>=0.12.0 - decisão em ADR-001"
     - name: "pydantic"
-      spec: ">=2.5.0"
-    - name: "python-jose"
-      spec: "[cryptography]>=3.3.0"
-    - name: "passlib"
-      spec: "[bcrypt]>=1.7.4"
-    - name: "python-multipart"
-      spec: ">=0.0.6"
+      spec: ">=2.0.0"
+      notes: "Validação de config e data models"
+    - name: "jinja2"
+      spec: ">=3.0.0"
+      notes: "Geração de templates Markdown"
+    - name: "structlog"
+      spec: ">=23.0.0"
+      notes: "Logging estruturado JSON"
+    - name: "pydantic-settings"
+      spec: ">=2.0.0"
+      notes: "Config management"
+    - name: "pathlib"
+      spec: "stdlib"
+      notes: "File scanning"
+    - name: "watchdog"
+      spec: ">=3.0.0"
+      notes: "Opcional - watch mode (P2)"
   development:
     - name: "pytest"
-      spec: ">=7.4.0"
-    - name: "pytest-asyncio"
-      spec: ">=0.21.0"
-    - name: "httpx"
-      spec: ">=0.25.0"
-    - name: "black"
-      spec: ">=23.0.0"
+      spec: ">=8.0.0"
+    - name: "pytest-cov"
+      spec: ">=4.0.0"
+      notes: "Cobertura ≥80%"
     - name: "ruff"
-      spec: ">=0.1.0"
+      spec: ">=0.3.0"
+      notes: "All-in-one linter+formatter"
     - name: "mypy"
+      spec: ">=1.9.0"
+      notes: "Type checking strict mode"
+    - name: "sphinx"
+      spec: ">=7.0.0"
+      notes: "Documentação"
+    - name: "sphinx-autodoc-typehints"
+      spec: ">=2.0.0"
+    - name: "bandit"
       spec: ">=1.7.0"
+      notes: "Security scan"
+    - name: "safety"
+      spec: ">=3.0.0"
+      notes: "Vulnerability scan"
 
 # -----------------------------------------------------------------------------
 # 3) Architecture / capabilities (semântica: o que o sistema TEM)
 # -----------------------------------------------------------------------------
 capabilities:
-  api:
+  cli:
     enabled: true
-    style: "rest"
-    base_path: "/api/v1"
-    endpoints:
-      - method: "POST"
-        path: "/api/v1/auth/register"
-        description: "Cadastro de usuário"
-      - method: "POST"
-        path: "/api/v1/auth/login"
-        description: "Login"
-      - method: "POST"
-        path: "/api/v1/auth/refresh"
-        description: "Renovar token"
-      - method: "GET"
-        path: "/api/v1/users/me"
-        description: "Perfil do usuário atual"
-      - method: "PUT"
-        path: "/api/v1/users/me"
-        description: "Atualizar perfil"
-      - method: "GET"
-        path: "/api/v1/users"
-        description: "Listar usuários (admin)"
-      - method: "DELETE"
-        path: "/api/v1/users/{id}"
-        description: "Deletar usuário (admin)"
+    commands:
+      - command: "scan"
+        args: "--input <path> --output <path> --format <json|markdown>"
+        description: "Escanear diretórios e gerar outputs"
+      - command: "config"
+        args: "--show | --validate"
+        description: "Gerenciar configuração"
+      - command: "version"
+        args: null
+        description: "Mostrar versão da ferramenta"
+    flags:
+      - "--dry-run: Preview sem modificar arquivos"
+      - "--verbose: Output detalhado"
+      - "--debug: Debug logs"
+      - "--quiet: Mínimo de output"
   features:
-    - "Cadastro e login de usuários"
-    - "Autenticação JWT com refresh tokens"
-    - "Perfis de usuário com roles (admin, user, guest)"
-    - "CRUD completo de usuários"
-    - "Upload de avatar de usuário"
-    - "Reset de senha via email"
-    - "Logs de auditoria"
-    - "Rate limiting"
-    - "Documentação automática (Swagger)"
+    - "P0: Scan de múltiplas pastas de projetos"
+    - "P0: Detecção automática de tipo de projeto (Python, Node.js, Go)"
+    - "P0: Extração de metadados (nome, descrição, tecnologias, stats)"
+    - "P0: Exportação JSON com schema Pydantic validado"
+    - "P0: Exportação Markdown formatado"
+    - "P1: Configuração via .env, config.yaml, CLI args"
+    - "P1: Análise Git avançada (commits, contribuidores, atividade)"
+    - "P1: Estatísticas de código (LOC, linguagens, complexidade)"
+    - "P1: Templates customizáveis Jinja2"
+    - "P2: Watch mode com monitoramento contínuo"
+    - "P2: Filtros e exclusões por regex"
+    - "P2: Cache inteligente"
 
 # -----------------------------------------------------------------------------
 # 4) Data & persistence (agnóstico: DB é só um tipo de backend)
 # -----------------------------------------------------------------------------
 data:
   persistence:
-    enabled: true
+    enabled: false
     backend:
-      type: "postgresql"
-      version: "15"
-      connection:
-        # Boas práticas: secrets não devem ficar em texto plano.
-        # Como é EXEMPLO, mantive o valor, mas marquei como "example_only".
-        connection_string:
-          value: "postgresql://user:password@localhost:5432/user_management_db"
-          secret: true
-          example_only: true
-      orm: "sqlalchemy"
-      migrations:
-        enabled: true
-        tool: "alembic"
+      type: null
+      notes: "Stateless CLI - não armazena dados, apenas gera outputs"
+  sources:
+    - type: "filesystem"
+      description: "Arquivos de projeto (README.md, pyproject.toml, package.json, etc.)"
+    - type: "git"
+      description: "Repositórios Git para análise de histórico"
+  outputs:
+    - type: "json"
+      path: "output/projects-data.json"
+      schema: "Pydantic BaseModel validado"
+      compatibility: "yves-profile-site"
+    - type: "markdown"
+      path: "output/profile-summary.md"
+      template: "Jinja2 customizável"
 
 # -----------------------------------------------------------------------------
 # 5) Security model (mapeia para intent/requirements.non_functional.security)
 # -----------------------------------------------------------------------------
 security:
   authentication:
-    enabled: true
-    method: "jwt"           # jwt|oauth2|session|basic|mtls|none|unknown
-    jwt:
-      refresh_tokens: true
+    enabled: false
+    method: "none"           # jwt|oauth2|session|basic|mtls|none|unknown
+    notes: "CLI local sem necessidade de autenticação"
   transport_security:
-    requires_ssl: true
-  cors:
-    enabled: true
-    origins:
-      - "http://localhost:3000"
-      - "https://myapp.com"
+    requires_ssl: false
+    notes: "Operação local, sem transporte de rede"
   protections:
-    security_headers: true
-    rate_limiting: true
     input_validation: true
-    sql_injection_protection: true
-    xss_protection: true
+    path_traversal_protection: true
+    secrets_policy: "no_secrets_in_repo"
+    notes: "Validação de paths, prevenção de path traversal, política de sem secrets em código"
 
 # -----------------------------------------------------------------------------
 # 6) Observability / operations
@@ -177,54 +182,38 @@ observability:
   logging:
     level: "INFO"
     format: "json"
+    library: "structlog"
+    notes: "Logs estruturados para parsing e análise"
   metrics:
-    enabled: true
-    tools:
-      - "prometheus"
-      - "grafana"
+    enabled: false
+    notes: "CLI local sem necessidade de métricas"
   health_checks:
-    enabled: true
-    endpoint: "/health"
+    enabled: false
+    notes: "N/A para CLI"
 
 # -----------------------------------------------------------------------------
 # 7) Environment variables (padronizado: key + description)
 # -----------------------------------------------------------------------------
 environment:
   variables:
-    - key: "DATABASE_URL"
-      description: "String de conexão do banco"
-      required: true
-      secret: true
-    - key: "JWT_SECRET_KEY"
-      description: "Chave secreta para JWT"
-      required: true
-      secret: true
-    - key: "JWT_ALGORITHM"
-      description: "Algoritmo JWT (default: HS256)"
+    - key: "PROFILE_GEN_INPUT_DIRS"
+      description: "Lista de diretórios para escanear (separados por :)"
       required: false
       secret: false
-    - key: "JWT_EXPIRE_MINUTES"
-      description: "Tempo de expiração do token"
+    - key: "PROFILE_GEN_OUTPUT_DIR"
+      description: "Diretório para outputs gerados"
       required: false
       secret: false
-    - key: "SMTP_SERVER"
-      description: "Servidor de email"
+    - key: "PROFILE_GEN_FORMAT"
+      description: "Formato de output (json|markdown|both)"
       required: false
       secret: false
-    - key: "SMTP_USER"
-      description: "Usuário do email"
-      required: false
-      secret: true
-    - key: "SMTP_PASSWORD"
-      description: "Senha do email"
-      required: false
-      secret: true
-    - key: "CORS_ORIGINS"
-      description: "Origens permitidas para CORS"
+    - key: "PROFILE_GEN_LOG_LEVEL"
+      description: "Nível de log (DEBUG|INFO|WARNING|ERROR)"
       required: false
       secret: false
-    - key: "DEBUG"
-      description: "Modo debug (default: false)"
+    - key: "PROFILE_GEN_CONFIG_PATH"
+      description: "Path para arquivo de configuração YAML"
       required: false
       secret: false
 
@@ -233,53 +222,81 @@ environment:
 # -----------------------------------------------------------------------------
 repository_layout:
   folder_structure:
-    - path: "src/api"
-      purpose: "Endpoints da API"
-    - path: "src/models"
-      purpose: "Modelos de dados"
-    - path: "src/services"
-      purpose: "Lógica de negócio"
-    - path: "src/auth"
-      purpose: "Sistema de autenticação"
-    - path: "src/database"
-      purpose: "Configuração do banco"
-    - path: "src/schemas"
-      purpose: "Schemas Pydantic"
-    - path: "tests"
-      purpose: "Testes automatizados"
-    - path: "alembic"
-      purpose: "Migrações do banco"
-    - path: "docs"
-      purpose: "Documentação da API"
+    - path: "src/profile_generator/"
+      purpose: "Package principal"
+    - path: "src/profile_generator/cli/"
+      purpose: "Comandos CLI (Click/Typer)"
+    - path: "src/profile_generator/scanner/"
+      purpose: "Lógica de scan de diretórios"
+    - path: "src/profile_generator/analyzers/"
+      purpose: "Análise por tipo de projeto (Factory Pattern)"
+    - path: "src/profile_generator/analyzers/base.py"
+      purpose: "Abstract base analyzer (max 150 LOC)"
+    - path: "src/profile_generator/analyzers/factory.py"
+      purpose: "Factory para criar analyzers (max 100 LOC)"
+    - path: "src/profile_generator/analyzers/python.py"
+      purpose: "Analyzer para projetos Python (max 200 LOC)"
+    - path: "src/profile_generator/analyzers/nodejs.py"
+      purpose: "Analyzer para Node.js (max 200 LOC)"
+    - path: "src/profile_generator/analyzers/go.py"
+      purpose: "Analyzer para Go (max 200 LOC)"
+    - path: "src/profile_generator/models/"
+      purpose: "Pydantic models para dados (um model por arquivo)"
+    - path: "src/profile_generator/exporters/"
+      purpose: "Geração de Markdown e JSON (Strategy Pattern)"
+    - path: "src/profile_generator/exporters/base.py"
+      purpose: "Abstract base exporter"
+    - path: "src/profile_generator/exporters/json.py"
+      purpose: "JSON exporter"
+    - path: "src/profile_generator/exporters/markdown.py"
+      purpose: "Markdown exporter"
+    - path: "src/profile_generator/config/"
+      purpose: "Gerenciamento de configuração (Pydantic Settings)"
+    - path: "tests/unit/"
+      purpose: "Testes unitários isolados"
+    - path: "tests/integration/"
+      purpose: "Testes de integração E2E"
+    - path: "tests/fixtures/"
+      purpose: "Dados de teste e mocks"
+    - path: "docs/"
+      purpose: "Documentação Sphinx"
+    - path: "docs/decisions/"
+      purpose: "Architecture Decision Records (ADRs)"
+    - path: "scripts/"
+      purpose: "Scripts de automação"
+    - path: "output/"
+      purpose: "Diretório padrão para outputs gerados"
 
 documentation:
   required: true
   path: "docs"
-  style: "reStructuredText"
+  style: "Google Style Docstrings"
+  tool: "Sphinx"
   api_documentation:
     enabled: true
-    openapi_swagger: true
+    autodoc: true
+    napoleon: true
+    notes: "Documentação automática via Sphinx + autodoc + Napoleon (Google style)"
   readme:
-    style: "beginner-friendly"
-    template_path: "pattern_code/README.template.md"
+    style: "developer-friendly"
+    template_path: null
     sections:
       - "Sobre o Projeto"
-      - "Como Começar"
-      - "Pré-requisitos"
       - "Instalação"
       - "Como Usar"
-      - "Endpoints da API"
+      - "Comandos CLI"
+      - "Configuração"
+      - "Exemplos"
       - "Desenvolvimento"
+      - "Arquitetura (SOLID + Design Patterns)"
       - "Contribuindo"
       - "Licença"
-      - "Contato"
     features:
-      - "Linguagem simples e acessível"
-      - "Passo a passo detalhado"
-      - "Exemplos de requisições"
-      - "Troubleshooting incluído"
-      - "Links para downloads"
-      - "Seção para iniciantes"
+      - "Exemplos práticos de uso"
+      - "Explicação de comandos e flags"
+      - "Links para ADRs"
+      - "Guia de desenvolvimento"
+      - "Arquitetura e padrões de design"
 
 # -----------------------------------------------------------------------------
 # 9) Testing & code quality
@@ -289,43 +306,79 @@ quality:
     enabled: true
     framework: "pytest"
     automation: true
-    coverage_target: 90
+    coverage_target: 80
     test_plan:
       required: true
       path: "docs/test-plan.md"
+    strategies:
+      - "TDD para funções core"
+      - "Unit tests para cada módulo"
+      - "Integration tests E2E"
+      - "Fixtures para dados de teste"
   code_style:
     standard: "pep8"
+    tools:
+      - "ruff format (compatível com black)"
+  code_quality:
+    max_loc_per_file: 300
+    max_recommended_loc: 200
+    notes: "Modularização rigorosa - quebrar em módulos menores se exceder"
   tools:
     linters:
-      - "ruff"
+      - "ruff check --select ALL"
     formatters:
-      - "black"
+      - "ruff format"
     typing:
-      - "mypy"
+      - "mypy --strict"
+    security:
+      - "bandit"
+      - "safety"
+  design_principles:
+    solid:
+      - "S - Single Responsibility"
+      - "O - Open/Closed"
+      - "L - Liskov Substitution"
+      - "I - Interface Segregation"
+      - "D - Dependency Inversion"
+    patterns:
+      - "Factory Pattern (analyzers)"
+      - "Strategy Pattern (exporters)"
+      - "Builder Pattern (metadados)"
+      - "Observer Pattern (progresso - opcional)"
+      - "Adapter Pattern (estruturas diferentes)"
+    architecture:
+      - "Hexagonal/Ports & Adapters"
+      - "Clean Architecture"
+      - "Functional Core, Imperative Shell"
 
 # -----------------------------------------------------------------------------
 # 10) Deployment & CI/CD
 # -----------------------------------------------------------------------------
 delivery:
   deployment:
-    target: "docker"
-    docker_port: 8000
-    stages:
-      - "development"
-      - "staging"
-      - "production"
+    target: "cli-tool"
+    install_method: "uv tool install"
+    platforms:
+      - "Linux"
+      - "macOS"
+      - "Windows WSL"
+    distribution:
+      - "PyPI (futuro)"
+      - "Git repository"
   ci_cd:
     required: true
     platform: "github-actions"
+    pipelines:
+      - "Testes (pytest + coverage)"
+      - "Linting (ruff check)"
+      - "Type checking (mypy --strict)"
+      - "Security scan (bandit + safety)"
+      - "Quality gates (max LOC, complexity)"
   runtime:
-    background_tasks: true
-    websocket_support: false
-    file_upload_support: true
-    email_service: true
-    caching:
-      enabled: true
-      strategy: "redis"
-  performance_optimization: true
+    background_tasks: false
+    file_operations: true
+    git_analysis: true
+    notes: "CLI stateless, operações de leitura de arquivos e análise Git"
 
 # -----------------------------------------------------------------------------
 # 11) Session / traceability / rollback (alinha com objetivo.yaml)
@@ -333,32 +386,32 @@ delivery:
 traceability:
   session_control: true
   history_tracking: true
-  history_file: "HISTORICO.md"
-  rollback_enabled: true
-  backup_strategy: "database"
-  callback_on_failure: true
-  versioning_pattern: "filename-vnnn.*"
+  history_file: "docs/SESSIONS/"
+  rollback_enabled: false
+  backup_strategy: "none"
+  notes: "Sessões documentadas em docs/SESSIONS/YYYY-MM-DD/"
+  versioning_pattern: "semver"
 
 # -----------------------------------------------------------------------------
 # 12) MCP-specific (context + capabilities + editor integration)
 # -----------------------------------------------------------------------------
 mcp:
-  context_name: "user-management-api-context"
+  context_name: "profile-generator-context"
   capabilities:
-    - "Code completion com contexto do projeto"
-    - "Sugestões de endpoints baseadas no modelo"
-    - "Validação automática de schemas"
+    - "Code completion com contexto do projeto CLI"
+    - "Sugestões de analyzers baseadas em tipos de projeto"
+    - "Validação automática de schemas Pydantic"
     - "Geração de testes automatizados"
-    - "Documentação automática da API"
+    - "Documentação automática via Sphinx"
+    - "ADRs para decisões arquiteturais"
+    - "SpecKit agents (clarify, specify, plan, tasks, implement)"
   vscode:
     extensions:
       - "Python"
       - "Pylance"
-      - "REST Client"
-      - "Thunder Client"
       - "GitLens"
-      - "Docker"
-      - "SQLTools"
+      - "Ruff"
+      - "Even Better TOML"
 
 # -----------------------------------------------------------------------------
 # 13) Scripts (boas práticas: id + path + purpose + language)
@@ -367,15 +420,19 @@ automation:
   needs_scripts: true
   scripts_path: "scripts"
   custom_scripts:
-    - id: "seed_database"
-      path: "scripts/seed_database.py"
-      language: "python"
-      purpose: "Popular banco com dados iniciais"
-    - id: "backup_db"
-      path: "scripts/backup_db.py"
-      language: "python"
-      purpose: "Fazer backup do banco"
-    - id: "deploy"
-      path: "scripts/deploy.py"
-      language: "python"
-      purpose: "Script de deploy automatizado"
+    - id: "setup_dev_env"
+      path: "scripts/setup-dev-env.sh"
+      language: "bash"
+      purpose: "Configurar ambiente de desenvolvimento (uv, pre-commit hooks)"
+    - id: "run_tests"
+      path: "scripts/run-tests.sh"
+      language: "bash"
+      purpose: "Executar todos os testes com coverage"
+    - id: "build_docs"
+      path: "scripts/build-docs.sh"
+      language: "bash"
+      purpose: "Gerar documentação Sphinx"
+    - id: "quality_check"
+      path: "scripts/quality-check.sh"
+      language: "bash"
+      purpose: "Executar todas as verificações de qualidade (lint, type check, tests, security)"

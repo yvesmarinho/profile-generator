@@ -22,221 +22,296 @@ schema:
 project:
   name: "profile-generator"
   codename: ""
-  domain: "agnostic"   # ex: software, infra, hardware, eletricidade, data, research
-  summary: "Escanea todas as pasta de projetos, compila os dados e gere arquivo md."
-  problem_statement: "Escanea todas as pasta de projetos, compila os dados e gere arquivo md."
-  success_statement: "CHANGE_ME (como saberemos que deu certo?)"
+  domain: "software"   # ex: software, infra, hardware, eletricidade, data, research
+  summary: "Ferramenta CLI para escanear automaticamente múltiplas pastas de projetos, analisar arquivos relevantes e gerar outputs estruturados (Markdown + JSON) para uso em site pessoal/portfólio."
+  problem_statement: "Desenvolvedores precisam manter portfólios atualizados manualmente, copiando informações de múltiplos projetos. Este processo é tedioso, propenso a erros e desatualização."
+  success_statement: "CLI instalável que escaneia projetos automaticamente, extrai metadados validados e gera Markdown + JSON compatível com yves-profile-site, reduzindo tempo de atualização de horas para segundos."
 
 stakeholders:
   owner:
-    team_or_person: "profile-generator team"
-    contact: ""
+    team_or_person: "yvesmarinho"
+    contact: "github.com/yvesmarinho"
   users_personas:
-    - name: "PrimaryUser"
-      description: "Quem usa e como usa."
+    - name: "Developer/Portfolio Owner"
+      description: "Desenvolvedor que mantém múltiplos projetos e precisa atualizar portfólio periodicamente com informações precisas e formatadas."
   reviewers:
-    - "tech_lead"
-    - "security"
-    - "ops"
+    - "yvesmarinho"
   decision_makers:
-    - "profile-generator owner"
+    - "yvesmarinho"
 
 # -----------------------------------------------------------------------------
 # 2) Escopo e fronteiras (para evitar creep)
 # -----------------------------------------------------------------------------
 scope:
   in_scope:
-    - "profile-generator owner"
+    - "CLI interface (Click ou Typer)"
+    - "Scanner de diretórios com detecção automática de tipo de projeto"
+    - "Análise de projetos Python, Node.js, Go"
+    - "Extração de metadados (nome, descrição, tecnologias, stats)"
+    - "Exportação para Markdown formatado"
+    - "Exportação para JSON estruturado (compatível com yves-profile-site)"
+    - "Configuração via .env e config.yaml"
+    - "Análise Git básica (commits, contribuidores, atividade)"
   out_of_scope:
-    - "profile-generator owner"
+    - "GUI ou Web UI (CLI apenas)"
+    - "APIs HTTP/REST"
+    - "Watch mode com monitoramento contínuo (P2 - futuro)"
+    - "Cache inteligente (P2 - futuro)"
+    - "Integração com plataformas de hospedagem (GitHub Pages, Netlify, etc.)"
   assumptions:
-    - "profile-generator owner"
+    - "Usuário tem Python 3.12+ instalado"
+    - "Projetos seguem estruturas convencionais (README.md, pyproject.toml, package.json, etc.)"
+    - "Git está disponível no sistema para análise de repositórios"
+    - "Usuário tem permissões de leitura nos diretórios de projetos"
   constraints:
     # Triângulo de ferro: tempo/custo/escopo/qualidade
     timeline:
-      target_date: "unknown"
+      target_date: "2026-06-30"
       hard_deadline: false
     budget:
-      max_budget: "unknown"
+      max_budget: "N/A (projeto open-source)"
       currency: "USD"
     risk_tolerance: "medium"  # low|medium|high
     change_policy:
-      mode: "brownfield"      # greenfield|brownfield
+      mode: "greenfield"      # greenfield|brownfield
       principles:
-        - "minimize_disruption"
-        - "backward_compatible_when_possible"
-      rebuild_allowed: "unknown"  # true|false|unknown
+        - "SOLID principles obrigatórios"
+        - "Modularização rigorosa (max 200-300 LOC por arquivo)"
+        - "Factory Pattern para analyzers"
+        - "Strategy Pattern para exporters"
+      rebuild_allowed: true  # true|false|unknown
 
 # -----------------------------------------------------------------------------
 # 3) Estado atual (brownfield context) e inventário de base existente
 # -----------------------------------------------------------------------------
 current_state:
-  description: "Projeto inicializado via scaffold.py, configurado com repositório GitHub"
+  description: "Projeto inicializado via scaffold.py, configurado com repositório GitHub, especificação técnica completa com SOLID e design patterns definidos"
   existing_assets:
     repos:
       - url: "git@github.com:yvesmarinho/profile-generator.git"
         notes: "Repositório principal do projeto profile-generator"
     systems_services:
-      - name: ""
-        owner: ""
-        notes: ""
-    hardware_components:
-      - name: ""
-        model: ""
-        notes: ""
-    facilities_electrical:
-      - name: ""
-        standards: ""
-        notes: ""
+      - name: "yves-profile-site"
+        owner: "yvesmarinho"
+        notes: "Consumidor dos dados gerados (JSON + Markdown) - localizado em ../yves-profile-site"
+    hardware_components: []
+    facilities_electrical: []
   known_pain_points:
-    - "unknown"
+    - "Atualização manual de portfólio é tedioso e propenso a erros"
+    - "Informações de projetos dispersas em múltiplos diretórios"
+    - "Falta de padronização na documentação de projetos"
   known_constraints:
-    - "unknown"
+    - "Deve ser compatível com formato JSON esperado por yves-profile-site"
+    - "Arquivos devem ter máximo 200-300 LOC (modularização rigorosa)"
+    - "Type checking strict mode obrigatório (mypy --strict)"
 
 # -----------------------------------------------------------------------------
 # 4) Pré-requisitos e dependências (HARD vs SOFT)
 # -----------------------------------------------------------------------------
 prerequisites:
   hard:
-    - id: "access_or_permissions"
-      description: "Acessos/permissões necessários para começar."
-      status: "unknown" # ready|blocked|unknown
-      evidence: ""      # link/commit/ticket
-    - id: "tools_environment"
-      description: "Ferramentas/ambiente mínimo (SO, compilador, runtime, etc.)."
-      status: "unknown"
+    - id: "python_runtime"
+      description: "Python 3.12+ instalado e disponível no PATH"
+      status: "ready" # ready|blocked|unknown
+      evidence: "python --version"      # link/commit/ticket
+    - id: "uv_package_manager"
+      description: "uv package manager instalado (não usar pip/poetry)"
+      status: "ready"
+      evidence: "uv --version"
+    - id: "git"
+      description: "Git instalado para análise de repositórios"
+      status: "ready"
+      evidence: "git --version"
+    - id: "read_permissions"
+      description: "Permissões de leitura nos diretórios de projetos a serem escaneados"
+      status: "ready"
       evidence: ""
   soft:
-    - id: "nice_to_have_tooling"
-      description: "Ferramentas recomendadas."
-      status: "unknown"
-      evidence: ""
+    - id: "vscode"
+      description: "VS Code com Copilot e MCP servers configurados"
+      status: "ready"
+      evidence: ".vscode/mcp.json"
 
 dependencies:
   internal:
-    - name: "unknown"
-      type: "service|team|repo|hardware|facility|process"
-      criticality: "unknown" # low|medium|high|unknown
-      notes: ""
+    - name: "yves-profile-site"
+      type: "repo"
+      criticality: "high" # low|medium|high|unknown
+      notes: "Consumidor dos dados gerados - define schema JSON esperado"
   external:
-    - name: "unknown"
-      type: "vendor|standard|library|api|regulation"
-      criticality: "unknown"
-      notes: ""
+    - name: "Click/Typer"
+      type: "library"
+      criticality: "high"
+      notes: "Framework CLI (decisão pendente em ADR-001)"
+    - name: "Pydantic 2.x"
+      type: "library"
+      criticality: "high"
+      notes: "Validação de dados e configuração"
+    - name: "Jinja2"
+      type: "library"
+      criticality: "high"
+      notes: "Geração de templates Markdown"
+    - name: "structlog"
+      type: "library"
+      criticality: "medium"
+      notes: "Logging estruturado JSON"
+    - name: "pytest"
+      type: "library"
+      criticality: "high"
+      notes: "Framework de testes"
+    - name: "ruff"
+      type: "library"
+      criticality: "high"
+      notes: "Linter e formatter all-in-one"
+    - name: "mypy"
+      type: "library"
+      criticality: "high"
+      notes: "Type checking strict mode"
 
 # -----------------------------------------------------------------------------
 # 5) Requisitos funcionais e não-funcionais (agnóstico)
 # -----------------------------------------------------------------------------
 requirements:
   functional:
-    - "unknown"
+    - "Escanear múltiplas pastas de projetos a partir de lista em .env ou config.yaml"
+    - "Detectar automaticamente tipo de projeto (Python, Node.js, Go, etc.)"
+    - "Extrair metadados: nome, descrição, tecnologias, estatísticas"
+    - "Gerar Markdown formatado para publicação"
+    - "Exportar JSON estruturado com schema validado (compatível com yves-profile-site)"
+    - "Suportar configuração via CLI args, ENV vars e config.yaml (precedência: CLI > ENV > Config > Defaults)"
+    - "Modo dry-run para preview sem modificar arquivos"
+    - "Análise Git: commits, contribuidores, atividade, último update"
   non_functional:
     security:
-      classification: "unknown"     # public|internal|confidential|restricted|unknown
+      classification: "public"     # public|internal|confidential|restricted|unknown
       secrets_policy: "no_secrets_in_repo"
-      threat_model_required: true
-      authn_authz: "unknown"        # none|basic|oauth|mtls|physical_access|unknown
-      audit_logging_required: "unknown"
+      threat_model_required: false
+      authn_authz: "none"        # none|basic|oauth|mtls|physical_access|unknown
+      audit_logging_required: false
     reliability:
-      availability_target: "unknown"  # ex: 99.9%
-      rpo: "unknown"
-      rto: "unknown"
-      backup_required: "unknown"
+      availability_target: "N/A (CLI local)"  # ex: 99.9%
+      rpo: "N/A"
+      rto: "N/A"
+      backup_required: false
     performance:
-      latency_p95: "unknown"
-      throughput: "unknown"
-      resource_limits: "unknown"
+      latency_p95: "< 5s para scan de 100 projetos"
+      throughput: "10-20 projetos/segundo"
+      resource_limits: "< 500MB RAM, single-threaded"
     maintainability:
       documentation_required: true
-      test_coverage_target: "unknown"
-      coding_standards: "unknown"
+      test_coverage_target: "≥80%"
+      coding_standards: "PEP 8 via ruff, SOLID principles, max 200-300 LOC por arquivo"
     compliance:
       regulations:
-        - "unknown"  # ex: LGPD, SOC2, ISO27001, IEC, ABNT, etc.
+        - "N/A"  # ex: LGPD, SOC2, ISO27001, IEC, ABNT, etc.
     usability:
-      accessibility: "unknown"
+      accessibility: "CLI com mensagens claras, --help detalhado, exit codes apropriados"
     portability:
       platforms:
-        - "unknown"  # linux, windows, embedded, mobile, etc.
+        - "Linux"
+        - "macOS"
+        - "Windows WSL"  # linux, windows, embedded, mobile, etc.
 
 # -----------------------------------------------------------------------------
 # 6) Interface e integrações (agnóstico: API, UI, CLI, hardware IO)
 # -----------------------------------------------------------------------------
 interfaces:
   user_interface:
-    type: "unknown" # none|web|mobile|desktop|hmi|unknown
-    notes: ""
+    type: "cli" # none|web|mobile|desktop|hmi|unknown
+    notes: "Interface de linha de comando (Click ou Typer)"
   programmatic_interface:
-    type: "unknown" # none|rest|grpc|mqtt|modbus|canbus|serial|unknown
-    versioning: "unknown"
-    backwards_compatibility_required: "unknown"
+    type: "none" # none|rest|grpc|mqtt|modbus|canbus|serial|unknown
+    versioning: "N/A"
+    backwards_compatibility_required: "N/A"
   data_interfaces:
     inputs:
-      - name: "unknown"
-        format: "unknown" # json,yaml,csv,sql,binary,etc.
-        notes: ""
+      - name: "Configuração"
+        format: ".env, config.yaml, CLI arguments" # json,yaml,csv,sql,binary,etc.
+        notes: "Lista de diretórios, opções de output, filtros"
+      - name: "Arquivos de projeto"
+        format: "README.md, pyproject.toml, package.json, go.mod, etc." # json,yaml,csv,sql,binary,etc.
+        notes: "Arquivos característicos de cada tipo de projeto"
     outputs:
-      - name: "unknown"
-        format: "unknown"
-        notes: ""
+      - name: "Markdown"
+        format: "markdown"
+        notes: "profile-summary.md formatado para publicação"
+      - name: "JSON"
+        format: "json"
+        notes: "projects-data.json com schema Pydantic validado, compatível com yves-profile-site"
+      - name: "Logs"
+        format: "json"
+        notes: "Logs estruturados via structlog"
   integrations:
-    - name: "unknown"
-      direction: "inbound|outbound|bidirectional|unknown"
-      protocol: "unknown"
-      auth: "unknown"
-      notes: ""
+    - name: "yves-profile-site"
+      direction: "outbound"
+      protocol: "filesystem"
+      auth: "none"
+      notes: "Consumidor dos JSON/Markdown gerados"
 
 # -----------------------------------------------------------------------------
 # 7) Dados (opcional, agnóstico)
 # -----------------------------------------------------------------------------
 data:
-  model_required: "unknown"
+  model_required: true
   data_sources:
-    - name: "unknown"
-      type: "db|files|api|sensors|manual|unknown"
-      quality_expectations: "unknown"
+    - name: "Arquivos de projeto"
+      type: "files"
+      quality_expectations: "README.md com descrição, arquivos de config válidos (pyproject.toml, package.json, etc.)"
+    - name: "Repositórios Git"
+      type: "files"
+      quality_expectations: "Repositório Git inicializado com histórico de commits"
   data_retention:
-    retention_period: "unknown"
-    deletion_policy: "unknown"
+    retention_period: "N/A (tool gera outputs, não armazena dados)"
+    deletion_policy: "N/A"
 
 # -----------------------------------------------------------------------------
 # 8) Entregáveis (documentos/artefatos) — não é tarefa, é “contrato de saída”
 # -----------------------------------------------------------------------------
 deliverables:
   required:
-    - "constitution"
-    - "specification"
-    - "plan"
-    - "risk_register"
-    - "readme_or_runbook"
+    - "specification (spec.md via SpecKit)"
+    - "plan (plan.md via SpecKit)"
+    - "tasks (tasks.md via SpecKit)"
+    - "README.md com exemplos de uso"
+    - "ADR-001: Escolha de framework CLI (Click vs Typer)"
+    - "ADR-002: Estratégia de detecção de projetos"
+    - "ADR-003: Aplicação de SOLID e design patterns"
+    - "ADR-004: Limites de tamanho de arquivo e modularização"
+    - "Sphinx documentation"
+    - "CLI instalável (uv tool install)"
   optional:
-    - "architecture_diagrams"
-    - "threat_model"
-    - "test_plan"
-    - "migration_plan"
+    - "architecture_diagrams (módulos e fluxo de dados)"
+    - "test_plan (estratégia de testes)"
+    - "migration_plan (N/A - greenfield)"
 
 # -----------------------------------------------------------------------------
 # 9) Regras de implementação (variável por projeto)
 # -----------------------------------------------------------------------------
 implementation_rules:
   error_handling_policy:
-    applies: "unknown"  # always|by_module|by_layer|unknown
-    default_behavior: "unknown"
+    applies: "always"  # always|by_module|by_layer|unknown
+    default_behavior: "CLI usa exit codes apropriados (0=sucesso, 1=erro geral, 2=config inválido); erros informativos; logs estruturados JSON"
     notes: >
-      Exemplo: "Em libs internas retornar False; em CLI usar exit codes;
-      em API levantar exceptions e mapear para HTTP codes."
+      Exceptions devem ser capturadas no CLI layer e convertidas em mensagens
+      user-friendly + exit codes. Business logic levanta exceptions específicas.
   parameter_validation:
     required: true
-    strict_typing: "unknown" # true|false|unknown
+    strict_typing: true # true|false|unknown
   documentation:
     required: true
-    style: "reStructuredText" # pode ser alterado por projeto
-    doctest_required: "unknown"
+    style: "Google Style Docstrings" # pode ser alterado por projeto
+    doctest_required: false
   testing:
     required: true
-    strategy: "unknown" # unit|integration|e2e|hardware_in_loop|unknown
+    strategy: "TDD para funções core; unit tests + integration tests; ≥80% coverage" # unit|integration|e2e|hardware_in_loop|unknown
   coding_patterns:
-    - "unknown" # ex: factory, repository, observer, strategy, singleton
+    - "Factory Pattern (obrigatório para analyzers)"
+    - "Strategy Pattern (para exporters)"
+    - "Builder Pattern (construção progressiva de metadados)"
+    - "Observer Pattern (notificações de progresso - opcional)"
+    - "Adapter Pattern (adaptar estruturas diferentes)"
+    - "Dependency Injection (passar deps via construtor)"
+    - "SOLID principles (SRP, OCP, LSP, ISP, DIP)"
 
 # -----------------------------------------------------------------------------
 # 10) Gates: perguntas orientadoras (o motor do Spec-Driven Design)
@@ -250,13 +325,13 @@ gates:
       question: "Qual é o resultado mensurável (métricas) que define sucesso?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "CLI instalável que reduz tempo de atualização de portfólio de horas para segundos; ≥80% coverage; mypy --strict sem erros; JSON compatível com yves-profile-site"
     - id: "goal_002"
       category: "scope"
       question: "O que explicitamente NÃO será feito (out-of-scope) nesta fase?"
       expected_answer_type: "list"
       required: true
-      current_answer: ["unknown"]
+      current_answer: ["GUI/Web UI", "APIs HTTP/REST", "Watch mode (P2)", "Cache inteligente (P2)", "Integração com plataformas de hospedagem"]
 
     # B) Contexto / brownfield
     - id: "ctx_001"
@@ -264,13 +339,13 @@ gates:
       question: "Quais ativos existentes NÃO podem ser quebrados (compatibilidade / contratos)?"
       expected_answer_type: "list"
       required: true
-      current_answer: ["unknown"]
+      current_answer: ["Schema JSON esperado por yves-profile-site"]
     - id: "ctx_002"
       category: "change_policy"
       question: "Rebuild do core é permitido? Se sim, em quais partes e sob quais condições?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "Sim, projeto greenfield - rebuild total permitido desde que siga SOLID, modularização rigorosa e mantenha compatibilidade com yves-profile-site"
 
     # C) Pré-requisitos e dependências
     - id: "pre_001"
@@ -278,13 +353,13 @@ gates:
       question: "Quais acessos/permissões/recursos são necessários para iniciar (e quem aprova)?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "Python 3.12+, uv package manager, Git, permissões de leitura em diretórios de projetos - todos disponíveis"
     - id: "dep_001"
       category: "dependencies"
       question: "Quais dependências internas/externas são críticas e quais são os riscos de atraso?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "Click/Typer (decisão em ADR-001), Pydantic 2.x, Jinja2, structlog, pytest, ruff, mypy - todas estáveis e disponíveis via PyPI"
 
     # D) Qualidade, segurança, compliance
     - id: "sec_001"
@@ -292,13 +367,13 @@ gates:
       question: "Qual a classificação dos dados e quais requisitos mínimos de segurança (auth, auditoria, criptografia)?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "Dados públicos (projetos open-source); sem auth/auditoria necessária; política: no_secrets_in_repo"
     - id: "nfr_001"
       category: "reliability"
       question: "Qual disponibilidade/continuidade é necessária (SLA/SLO, RPO/RTO)?"
       expected_answer_type: "text"
       required: false
-      current_answer: "unknown"
+      current_answer: "N/A - CLI local sem requisitos de disponibilidade"
 
     # E) Interfaces (API/UI/Hardware)
     - id: "if_001"
@@ -306,7 +381,7 @@ gates:
       question: "Quais interfaces existem/serão expostas (UI, CLI, API, serial, MQTT etc.) e seus contratos?"
       expected_answer_type: "text"
       required: true
-      current_answer: "unknown"
+      current_answer: "CLI apenas (Click ou Typer); comandos: scan --input <path> --output <path> --format <json|markdown>; exit codes: 0=sucesso, 1=erro, 2=config inválido"
 
     # F) Entregáveis
     - id: "deliv_001"
@@ -314,4 +389,4 @@ gates:
       question: "Quais documentos/artefatos são obrigatórios no final (constitution/spec/plan/runbook)?"
       expected_answer_type: "list"
       required: true
-      current_answer: ["constitution", "specification", "plan", "risk_register", "readme_or_runbook"]
+      current_answer: ["spec.md", "plan.md", "tasks.md", "README.md", "ADRs 001-004", "Sphinx docs", "CLI instalável"]
